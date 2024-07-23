@@ -1,0 +1,1918 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lintel Adventure with Tower Defense</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Pacifico&display=swap');
+
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #e6f7ff;
+        }
+        #game-container, #tower-defense-container {
+            background: url('images/background.png') no-repeat center center;
+            background-size: cover;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+            width: 90%;
+            max-width: 800px;
+            color: white;
+            position: relative;
+        }
+        #tower-defense-container {
+            display: none;
+        }
+        #lintel-display {
+            width: 200px;
+            height: 200px;
+            margin: 0 auto 20px auto;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            cursor: pointer;
+            border-radius: 50%;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+        }
+        @keyframes hover {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        @keyframes jump {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-50px); }
+        }
+        @keyframes flip {
+            0% { transform: rotateY(0); }
+            50% { transform: rotateY(180deg); }
+            100% { transform: rotateY(360deg); }
+        }
+        @keyframes dance {
+            0%, 100% { transform: rotate(0); }
+            25% { transform: rotate(10deg); }
+            50% { transform: rotate(-10deg); }
+            75% { transform: rotate(10deg); }
+        }
+        .animate-hover {
+            animation: hover 4s ease-in-out infinite;
+        }
+        .animate-jump {
+            animation: jump 1s ease-in-out;
+        }
+        .animate-flip {
+            animation: flip 1s ease-in-out;
+        }
+        .animate-dance {
+            animation: dance 1s ease-in-out;
+        }
+        .stat-bar {
+            width: 100%;
+            height: 20px;
+            background-color: rgba(224, 224, 224, 0.3);
+            margin: 10px 0;
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+        .stat-fill {
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s ease-in-out;
+            border-radius: 10px;
+            animation: glow 1.5s ease-in-out infinite;
+        }
+        @keyframes glow {
+            0%, 100% { box-shadow: 0 0 5px rgba(255, 255, 255, 0.8); }
+            50% { box-shadow: 0 0 20px rgba(255, 255, 255, 1); }
+        }
+        .stat-label {
+            position: absolute;
+            left: 10px;
+            top: 0;
+            line-height: 20px;
+            color: black;
+            font-weight: bold;
+        }
+        #food-bar .stat-fill { background-color: #76c7c0; }
+        #water-bar .stat-fill { background-color: #3498db; }
+        #exp-bar .stat-fill { background-color: #f1c40f; }
+        #growth-bar .stat-fill { background-color: #9b59b6; }
+        .action-buttons {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+        }
+        button {
+            padding: 5px 10px;
+            font-size: 14px;
+            cursor: pointer;
+            background-color: rgba(52, 152, 219, 0.7);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            transition: background-color 0.3s, transform 0.3s, box-shadow 0.3s;
+            margin: 5px;
+        }
+        button img {
+            width: 35px;
+            height: 35px;
+        }
+        button:hover {
+            background-color: rgba(41, 128, 185, 0.9);
+            transform: scale(1.1);
+            box-shadow: 0 0 15px rgba(41, 128, 185, 0.6);
+        }
+        #resources {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+        }
+        .resource {
+            text-align: center;
+            font-size: 18px;
+        }
+        .resource-icon {
+            background-color: rgba(0, 0, 0, 0.5);
+            padding: 5px;
+            border-radius: 50%;
+        }
+        #stats {
+            margin-top: 20px;
+            text-align: center;
+            font-family: 'Pacifico', cursive;
+            font-size: 20px;
+            color: #fff;
+            text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.7);
+        }
+        #mini-game {
+            width: 100%;
+            height: 300px;
+            background: url('images/universe_background.png') no-repeat center center;
+            background-size: cover;
+            position: relative;
+            overflow: hidden;
+            display: none;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+        }
+        .falling-item {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.8));
+        }
+        #basket {
+            width: 60px;
+            height: 40px;
+            background: linear-gradient(45deg, #444, #777);
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            clip-path: polygon(0% 100%, 5% 0%, 95% 0%, 100% 100%);
+        }
+        #egg-selection-container {
+            text-align: center;
+        }
+        #egg-selection-container img {
+            width: 100px;
+            height: auto;
+            cursor: pointer;
+        }
+        #egg-selection-container div {
+            display: inline-block;
+            text-align: center;
+            margin: 0 20px;
+        }
+        #cosmetics-container {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+        }
+        #cosmetics-list {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .cosmetic-item {
+            margin: 10px;
+            cursor: pointer;
+        }
+        .cosmetic-item span {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            margin-right: 5px;
+            vertical-align: middle;
+        }
+        #lintel-preview {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            border-radius: 50%;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+        }
+        /* Tower Defense Styles */
+        #tower-defense-canvas {
+            border: 2px solid #333;
+            background-color: #fff;
+        }
+        #tower-defense-ui {
+            margin-top: 10px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        #tower-defense-info {
+            width: 100%;
+            text-align: center;
+            margin-top: 10px;
+        }
+        #context-menu {
+            position: absolute;
+            display: none;
+            background-color: white;
+            border: 1px solid #ccc;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            z-index: 10;
+        }
+        #context-menu button {
+            display: block;
+            width: 100%;
+            border: none;
+            background: none;
+            padding: 10px;
+            cursor: pointer;
+            text-align: left;
+        }
+        #context-menu button:hover {
+            background-color: #eee;
+        }
+        #tower-controls {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            z-index: 10;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="egg-selection-container" style="display: none;">
+        <h1>Choose your egg</h1>
+        <div onclick="selectEgg('lintel')">
+            <img src="images/lintel_egg.png" alt="Lintel Egg">
+            <p>Lintel Egg</p>
+        </div>
+        <div onclick="selectEgg('prowler')">
+            <img src="images/prowler_egg.png" alt="Prowler Egg">
+            <p>Prowler Egg</p>
+        </div>
+    </div>
+    <div id="game-container">
+        <div id="lintel-display"></div>
+        <div id="stats"><span id="lintel-name"></span> | Level: <span id="level">1</span> | Stage: <span id="stage">Egg</span></div>
+        <div class="stat-bar" id="food-bar">
+            <div class="stat-fill"></div>
+            <div class="stat-label">Food</div>
+        </div>
+        <div class="stat-bar" id="water-bar">
+            <div class="stat-fill"></div>
+            <div class="stat-label">Water</div>
+        </div>
+        <div class="stat-bar" id="exp-bar">
+            <div class="stat-fill"></div>
+            <div class="stat-label">EXP</div>
+        </div>
+        <div class="stat-bar" id="growth-bar">
+            <div class="stat-fill"></div>
+            <div class="stat-label">Growth</div>
+        </div>
+        <div id="resources">
+            <div class="resource"><span class="resource-icon">🍎</span> <span id="food-count">5</span></div>
+            <div class="resource"><span class="resource-icon">💧</span> <span id="water-count">5</span></div>
+            <div class="resource"><span class="resource-icon">⭐</span> <span id="rare-item-count">0</span></div>
+        </div>
+        <div class="action-buttons">
+            <button onclick="handleButtonClick('feed')">
+                <img src="images/feed_icon.png" alt="Feed">
+            </button>
+            <button onclick="handleButtonClick('water')">
+                <img src="images/water_icon.png" alt="Water">
+            </button>
+            <button onclick="handleButtonClick('startGatheringGame')">
+                <img src="images/gather_icon.png" alt="Gather">
+            </button>
+            <button onclick="handleButtonClick('adventure')">
+                <img src="images/adventure_icon.png" alt="Adventure">
+            </button>
+            <button onclick="handleButtonClick('useRareItem')">
+                <img src="images/level_boost_icon.png" alt="Use Level Boost">
+            </button>
+        </div>
+        <div id="mini-game">
+            <div id="basket"></div>
+        </div>
+        <button id="switch-egg-button" onclick="switchEgg()">Switch Egg</button>
+        <button id="cosmetics-button" style="display: none;" onclick="toggleCosmetics()">Cosmetics</button>
+        <audio id="lintel-click-egg-sound" src="sounds/lintel_click_egg.mp3"></audio>
+        <audio id="lintel-click-cracked-egg-sound" src="sounds/lintel_click_cracked_egg.mp3"></audio>
+        <audio id="lintel-click-baby-sound" src="sounds/lintel_click_baby.mp3"></audio>
+        <audio id="lintel-click-teen-sound" src="sounds/lintel_click_teen.mp3"></audio>
+        <audio id="lintel-click-adult-sound" src="sounds/lintel_click_adult.mp3"></audio>
+        <audio id="prowler-click-egg-sound" src="sounds/prowler_click_egg.mp3"></audio>
+        <audio id="prowler-click-cracked-egg-sound" src="sounds/prowler_click_cracked_egg.mp3"></audio>
+        <audio id="prowler-click-baby-sound" src="sounds/prowler_click_baby.mp3"></audio>
+        <audio id="prowler-click-teen-sound" src="sounds/prowler_click_teen.mp3"></audio>
+        <audio id="prowler-click-adult-sound" src="sounds/prowler_click_adult.mp3"></audio>
+        <audio id="button-sound" src="sounds/button_click.mp3"></audio>
+        <audio id="star-sound" src="sounds/star_capture.mp3"></audio>
+        <audio id="present-sound" src="sounds/present_capture.mp3"></audio>
+        <audio id="background-music" src="sounds/background_music.mp3" loop autoplay></audio>
+    </div>
+    <div id="tower-defense-container">
+        <canvas id="tower-defense-canvas" width="800" height="600"></canvas>
+        <div id="tower-defense-ui">
+            <button id="td-start-button">Start Game</button>
+            <button id="td-place-goaden">Goaden (75)</button>
+            <button id="td-place-ashai">Ashai (100)</button>
+            <button id="td-place-yukon">Yukon (125)</button>
+            <button id="td-place-whisper">Whisper (150)</button>
+            <button id="td-place-chill">Chill (125)</button>
+            <div id="tower-defense-info">
+                <div id="td-presence-display">Presence: 200</div>
+                <div id="td-wave-display">Wave: 0</div>
+                <div id="td-health-display">Health: 100</div>
+            </div>
+        </div>
+        <div id="td-context-menu" class="tower-menu"></div>
+    </div>
+
+    <div id="cosmetics-container">
+        <h2>Cosmetics</h2>
+        <div id="lintel-preview"></div>
+        <div id="cosmetics-list"></div>
+        <button onclick="applyCosmetic()">Apply Cosmetic</button>
+        <button onclick="removeCosmetic()">Remove Cosmetic</button>
+        <button onclick="toggleCosmetics()">Close</button>
+    </div>
+
+    <script>
+        const lintelImages = {
+            egg: 'images/lintel_egg.png',
+            cracked_egg: 'images/lintel_cracked_egg.png',
+            baby: 'images/lintel_baby.png',
+            teen: 'images/lintel_teen.png',
+            adult: 'images/lintel_adult.png'
+        };
+
+        const prowlerImages = {
+            egg: 'images/prowler_egg.png',
+            cracked_egg: 'images/prowler_cracked_egg.png',
+            baby: 'images/prowler_baby.png',
+            teen: 'images/prowler_teen.png',
+            adult: 'images/prowler_adult.png'
+        };
+
+        const clickSounds = {
+            lintel: {
+                egg: 'lintel-click-egg-sound',
+                cracked_egg: 'lintel-click-cracked-egg-sound',
+                baby: 'lintel-click-baby-sound',
+                teen: 'lintel-click-teen-sound',
+                adult: 'lintel-click-adult-sound'
+            },
+            prowler: {
+                egg: 'prowler-click-egg-sound',
+                cracked_egg: 'prowler-click-cracked-egg-sound',
+                baby: 'prowler-click-baby-sound',
+                teen: 'prowler-click-teen-sound',
+                adult: 'prowler-click-adult-sound'
+            }
+        };
+
+        const cosmeticFilters = {
+            red: 'brightness(0.8) sepia(1) saturate(3) hue-rotate(-50deg)',
+            blue: 'brightness(0.8) sepia(1) saturate(3) hue-rotate(180deg)',
+            green: 'brightness(0.8) sepia(1) saturate(3) hue-rotate(90deg)',
+            yellow: 'brightness(1.2) sepia(1) saturate(3) hue-rotate(30deg)',
+            purple: 'brightness(0.8) sepia(1) saturate(3) hue-rotate(270deg)',
+            none: 'none'
+        };
+
+        let lintel = {
+            stage: 'egg',
+            level: 1,
+            food: 50,
+            water: 50,
+            exp: 0,
+            maxExp: 100,
+            growthProgress: 0,
+            growthNeeded: 100,
+            name: '',
+            cosmetics: [],
+            selectedCosmetic: ''
+        };
+
+        let prowler = {
+            stage: 'egg',
+            level: 1,
+            food: 50,
+            water: 50,
+            exp: 0,
+            maxExp: 100,
+            growthProgress: 0,
+            growthNeeded: 100,
+            name: '',
+            cosmetics: [],
+            selectedCosmetic: ''
+        };
+
+        let currentEgg = 'lintel';
+        let resources = {
+            food: 5,
+            water: 5,
+            rareItem: 0
+        };
+
+        let tiredUntil = 0;
+        let gatherCount = 0;
+        let selectedCosmetic = '';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const selectedEgg = localStorage.getItem('selectedEgg');
+            if (selectedEgg) {
+                currentEgg = selectedEgg;
+                updateEggData();
+                document.getElementById('egg-selection-container').style.display = 'none';
+                document.getElementById('game-container').style.display = 'block';
+            } else {
+                document.getElementById('egg-selection-container').style.display = 'block';
+                document.getElementById('game-container').style.display = 'none';
+            }
+
+            const lintelDisplay = document.getElementById('lintel-display');
+            lintelDisplay.classList.add('animate-hover');
+
+            lintelDisplay.addEventListener('click', () => {
+                playSound(clickSounds[currentEgg][currentEgg === 'lintel' ? lintel.stage : prowler.stage]);
+                const animations = ['animate-jump', 'animate-flip', 'animate-dance'];
+                const randomAnimation = animations[Math.floor(Math.random() * animations.length)];
+                addAnimationClass(randomAnimation);
+                saveGame();
+            });
+
+            lintelDisplay.addEventListener('touchstart', () => {
+                playSound(clickSounds[currentEgg][currentEgg === 'lintel' ? lintel.stage : prowler.stage]);
+                const animations = ['animate-jump', 'animate-flip', 'animate-dance'];
+                const randomAnimation = animations[Math.floor(Math.random() * animations.length)];
+                addAnimationClass(randomAnimation);
+                saveGame();
+            });
+
+            loadGame();
+            updateDisplay();
+
+            document.getElementById('rare-item-count').innerText = resources.rareItem;
+            const backgroundMusic = document.getElementById('background-music');
+            backgroundMusic.play();
+            backgroundMusic.volume = 0.3;
+
+            document.body.addEventListener('click', () => {
+                if (backgroundMusic.paused) {
+                    backgroundMusic.play();
+                }
+            });
+        });
+
+        function selectEgg(egg) {
+            currentEgg = egg;
+            localStorage.setItem('selectedEgg', egg);
+            window.location.reload();
+        }
+
+        function switchEgg() {
+            currentEgg = currentEgg === 'lintel' ? 'prowler' : 'lintel';
+            updateEggData();
+            updateDisplay();
+        }
+
+        function toggleCosmetics() {
+            const cosmeticsContainer = document.getElementById('cosmetics-container');
+            cosmeticsContainer.style.display = cosmeticsContainer.style.display === 'none' ? 'block' : 'none';
+            if (cosmeticsContainer.style.display === 'block') {
+                populateCosmeticsList();
+                updatePreview();
+            }
+        }
+
+        function populateCosmeticsList() {
+            const cosmeticsList = document.getElementById('cosmetics-list');
+            cosmeticsList.innerHTML = '';
+            const currentData = currentEgg === 'lintel' ? lintel : prowler;
+
+            currentData.cosmetics.forEach(cosmetic => {
+                const cosmeticItem = document.createElement('div');
+                cosmeticItem.className = 'cosmetic-item';
+                cosmeticItem.onclick = () => previewCosmetic(cosmetic);
+
+                const colorBox = document.createElement('span');
+                colorBox.style.backgroundColor = getColorForCosmetic(cosmetic);
+
+                cosmeticItem.appendChild(colorBox);
+                cosmeticItem.appendChild(document.createTextNode(cosmetic.charAt(0).toUpperCase() + cosmetic.slice(1)));
+
+                cosmeticsList.appendChild(cosmeticItem);
+            });
+        }
+
+        function updatePreview() {
+            const preview = document.getElementById('lintel-preview');
+            const currentData = currentEgg === 'lintel' ? lintel : prowler;
+            const images = currentEgg === 'lintel' ? lintelImages : prowlerImages;
+            
+            preview.style.backgroundImage = `url(${images[currentData.stage]})`;
+            preview.style.filter = cosmeticFilters[currentData.selectedCosmetic] || 'none';
+        }
+
+        function previewCosmetic(cosmetic) {
+            selectedCosmetic = cosmetic;
+            const preview = document.getElementById('lintel-preview');
+            preview.style.filter = cosmeticFilters[cosmetic] || 'none';
+        }
+
+        function applyCosmetic() {
+            const currentData = currentEgg === 'lintel' ? lintel : prowler;
+            currentData.selectedCosmetic = selectedCosmetic;
+            updateDisplay();
+            toggleCosmetics();
+            saveGame();
+        }
+
+        function removeCosmetic() {
+            const currentData = currentEgg === 'lintel' ? lintel : prowler;
+            currentData.selectedCosmetic = '';
+            selectedCosmetic = '';
+            updateDisplay();
+            updatePreview();
+            toggleCosmetics();
+            saveGame();
+        }
+
+        function updateEggData() {
+            const savedLintel = localStorage.getItem('lintel');
+            const savedProwler = localStorage.getItem('prowler');
+            if (currentEgg === 'lintel' && savedLintel) {
+                Object.assign(lintel, JSON.parse(savedLintel));
+                resources = lintel.resources || resources;
+            } else if (currentEgg === 'prowler' && savedProwler) {
+                Object.assign(prowler, JSON.parse(savedProwler));
+                resources = prowler.resources || resources;
+            }
+
+            if ((lintel.cosmetics.length > 0 || prowler.cosmetics.length > 0) && document.getElementById('cosmetics-button').style.display === 'none') {
+                document.getElementById('cosmetics-button').style.display = 'block';
+            }
+        }
+
+        function playSound(id) {
+            const sound = document.getElementById(id);
+            if (sound) {
+                sound.currentTime = 0;
+                sound.play();
+            }
+        }
+
+        function updateDisplay() {
+            const lintelDisplay = document.getElementById('lintel-display');
+            const currentData = currentEgg === 'lintel' ? lintel : prowler;
+            const images = currentEgg === 'lintel' ? lintelImages : prowlerImages;
+            lintelDisplay.style.backgroundImage = `url(${images[currentData.stage]})`;
+            lintelDisplay.style.filter = cosmeticFilters[currentData.selectedCosmetic] || 'none';
+
+            document.getElementById('food-bar').querySelector('.stat-fill').style.width = `${currentData.food}%`;
+            document.getElementById('water-bar').querySelector('.stat-fill').style.width = `${currentData.water}%`;
+            document.getElementById('exp-bar').querySelector('.stat-fill').style.width = `${(currentData.exp / currentData.maxExp) * 100}%`;
+            document.getElementById('growth-bar').querySelector('.stat-fill').style.width = `${(currentData.growthProgress / currentData.growthNeeded) * 100}%`;
+
+            document.getElementById('food-count').innerText = resources.food;
+            document.getElementById('water-count').innerText = resources.water;
+            document.getElementById('rare-item-count').innerText = resources.rareItem;
+            document.getElementById('level').innerText = currentData.level;
+            document.getElementById('stage').innerText = currentData.stage.charAt(0).toUpperCase() + currentData.stage.slice(1).replace('_', ' ');
+            document.getElementById('lintel-name').innerText = currentData.name || (currentEgg === 'lintel' ? 'Lintel' : 'Prowler');
+        }
+
+        function handleButtonClick(action) {
+            playSound('button-sound');
+            if (Date.now() < tiredUntil) {
+                customAlert(`${currentEgg === 'lintel' ? 'Lintel' : 'Prowler'} is tired! Give them some rest for ${Math.ceil((tiredUntil - Date.now()) / 60000)} more minute(s).`);
+                return;
+            }
+            switch (action) {
+                case 'feed':
+                    feed();
+                    break;
+                case 'water':
+                    water();
+                    break;
+                case 'startGatheringGame':
+                    startGatheringGame();
+                    break;
+                case 'adventure':
+                    startAdventure();
+                    break;
+                case 'useRareItem':
+                    useRareItem();
+                    break;
+                default:
+                    break;
+            }
+            saveGame();
+        }
+
+        function feed() {
+            if (resources.food > 0) {
+                resources.food--;
+                const currentData = currentEgg === 'lintel' ? lintel : prowler;
+                currentData.food = Math.min(100, currentData.food + 20);
+                gainExp(5);
+                updateDisplay();
+                checkGrowth();
+            } else {
+                customAlert("Not enough food! Gather more resources.");
+            }
+        }
+
+        function water() {
+            if (resources.water > 0) {
+                resources.water--;
+                const currentData = currentEgg === 'lintel' ? lintel : prowler;
+                currentData.water = Math.min(100, currentData.water + 20);
+                gainExp(5);
+                updateDisplay();
+                checkGrowth();
+            } else {
+                customAlert("Not enough water! Gather more resources.");
+            }
+        }
+
+        function startAdventure() {
+            const currentData = currentEgg === 'lintel' ? lintel : prowler;
+            if (currentData.stage === 'egg' || currentData.stage === 'cracked_egg') {
+                customAlert("Your egg can't go on adventures yet!");
+                return;
+            }
+            document.getElementById('game-container').style.display = 'none';
+            document.getElementById('tower-defense-container').style.display = 'block';
+            initTowerDefense();
+        }
+
+        function useRareItem() {
+            if (resources.rareItem > 0) {
+                resources.rareItem--;
+                const currentData = currentEgg === 'lintel' ? lintel : prowler;
+                currentData.exp += currentData.maxExp * 0.5;
+                if (currentData.exp >= currentData.maxExp) {
+                    currentData.exp = currentData.maxExp - 1;
+                }
+                updateDisplay();
+                customAlert("You used a rare item and gained experience!");
+                checkGrowth();
+            } else {
+                customAlert("You don't have any rare items!");
+            }
+        }
+
+        function gainExp(amount) {
+            const currentData = currentEgg === 'lintel' ? lintel : prowler;
+            currentData.exp += amount;
+            if (currentData.exp >= currentData.maxExp) {
+                currentData.level++;
+                currentData.exp -= currentData.maxExp;
+                currentData.maxExp = Math.floor(currentData.maxExp * 1.5);
+                customAlert(`${currentEgg === 'lintel' ? 'Lintel' : 'Prowler'} has reached level ${currentData.level}!`);
+                currentData.growthProgress += 20;
+                checkGrowth();
+            }
+        }
+
+        function checkGrowth() {
+            const currentData = currentEgg === 'lintel' ? lintel : prowler;
+            if (currentData.growthProgress >= currentData.growthNeeded) {
+                switch(currentData.stage) {
+                    case 'egg':
+                        currentData.stage = 'cracked_egg';
+                        customAlert("Your egg has cracked!");
+                        break;
+                    case 'cracked_egg':
+                        let name = prompt("Your creature has hatched into a baby! Give your creature a name:");
+                        if (name) {
+                            currentData.name = name;
+                        }
+                        currentData.stage = 'baby';
+                        break;
+                    case 'baby':
+                        currentData.stage = 'teen';
+                        customAlert("Your creature has grown into a teenager!");
+                        break;
+                    case 'teen':
+                        currentData.stage = 'adult';
+                        customAlert("Your creature has become an adult!");
+                        break;
+                }
+                currentData.growthProgress = 0;
+                currentData.growthNeeded = Math.floor(currentData.growthNeeded * 1.5);
+            }
+            updateDisplay();
+            saveGame();
+        }
+
+        function addAnimationClass(animationClass) {
+            const lintelDisplay = document.getElementById('lintel-display');
+            lintelDisplay.classList.remove('animate-hover');
+            lintelDisplay.classList.add(animationClass);
+
+            setTimeout(() => {
+                lintelDisplay.classList.remove(animationClass);
+                lintelDisplay.classList.add('animate-hover');
+            }, 1000);
+        }
+
+        function gameLoop() {
+            const currentData = currentEgg === 'lintel' ? lintel : prowler;
+            currentData.food = Math.max(0, currentData.food - 0.5);
+            currentData.water = Math.max(0, currentData.water - 0.5);
+            updateDisplay();
+            saveGame();
+        }
+
+        function saveGame() {
+            const currentData = currentEgg === 'lintel' ? lintel : prowler;
+            localStorage.setItem(currentEgg, JSON.stringify(currentData));
+            localStorage.setItem('resources', JSON.stringify(resources));
+            localStorage.setItem('tiredUntil', tiredUntil.toString());
+            localStorage.setItem('gatherCount', gatherCount);
+        }
+
+        function loadGame() {
+            const savedLintel = localStorage.getItem('lintel');
+            const savedProwler = localStorage.getItem('prowler');
+            const savedResources = localStorage.getItem('resources');
+            const savedTiredUntil = localStorage.getItem('tiredUntil');
+            const savedGatherCount = localStorage.getItem('gatherCount');
+            if (savedLintel) {
+                Object.assign(lintel, JSON.parse(savedLintel));
+            }
+            if (savedProwler) {
+                Object.assign(prowler, JSON.parse(savedProwler));
+            }
+            if (savedResources) {
+                Object.assign(resources, JSON.parse(savedResources));
+            }
+            if (savedTiredUntil) {
+                tiredUntil = parseInt(savedTiredUntil);
+            }
+            if (savedGatherCount) {
+                gatherCount = parseInt(savedGatherCount);
+            }
+        }
+
+        let gatheringGameActive = false;
+        let basketPosition = 175;
+        const basketElement = document.getElementById('basket');
+        const miniGameElement = document.getElementById('mini-game');
+
+        function startGatheringGame() {
+            if (gatheringGameActive) return;
+            const currentData = currentEgg === 'lintel' ? lintel : prowler;
+            if (currentData.stage === 'egg' || currentData.stage === 'cracked_egg') {
+                customAlert("Your egg can't go gathering yet!");
+                return;
+            }
+            if (Math.random() < 0.05) {
+                tiredUntil = Date.now() + 600000;
+                customAlert(`${currentEgg === 'lintel' ? 'Lintel' : 'Prowler'} got into a fight with a sprite and is tired! Give them some rest!`);
+                return;
+            }
+            gatheringGameActive = true;
+            gatherCount++;
+            miniGameElement.style.display = 'block';
+            basketElement.style.left = '175px';
+            basketPosition = 175;
+            spawnItems();
+            document.addEventListener('mousemove', moveBasket);
+            document.addEventListener('touchmove', moveBasketTouch);
+            setTimeout(endGatheringGame, 15000);
+
+            if (gatherCount % 2 === 0) {
+                setTimeout(spawnPresent, 5000);
+            }
+        }
+
+        function moveBasket(e) {
+            const gameRect = miniGameElement.getBoundingClientRect();
+            basketPosition = e.clientX - gameRect.left - 30;
+            basketPosition = Math.max(0, Math.min(basketPosition, gameRect.width - basketElement.offsetWidth));
+            basketElement.style.left = basketPosition + 'px';
+        }
+
+        function moveBasketTouch(e) {
+            const gameRect = miniGameElement.getBoundingClientRect();
+            basketPosition = e.touches[0].clientX - gameRect.left - 30;
+            basketPosition = Math.max(0, Math.min(basketPosition, gameRect.width - basketElement.offsetWidth));
+            basketElement.style.left = basketPosition + 'px';
+        }
+
+        function createGraffitiStar(color) {
+            const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+            svg.setAttribute("viewBox", "0 0 100 100");
+            svg.setAttribute("width", "40");
+            svg.setAttribute("height", "40");
+            const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+            path.setAttribute("d", "M50 5 L61 35 93 37 68 59 76 90 50 75 24 90 32 59 7 37 39 35z");
+            path.setAttribute("fill", color);
+            path.setAttribute("stroke", "white");
+            path.setAttribute("stroke-width", "2");
+            path.style.filter = "drop-shadow(0 0 5px rgba(255, 255, 255, 0.8))";
+            svg.appendChild(path);
+            return svg;
+        }
+
+        function createPresent(color) {
+            const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+            svg.setAttribute("viewBox", "0 0 100 100");
+            svg.setAttribute("width", "40");
+            svg.setAttribute("height", "40");
+            const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+            rect.setAttribute("x", "25");
+            rect.setAttribute("y", "25");
+            rect.setAttribute("width", "50");
+            rect.setAttribute("height", "50");
+            rect.setAttribute("fill", color);
+            rect.setAttribute("stroke", "white");
+            rect.setAttribute("stroke-width", "2");
+            rect.style.filter = "drop-shadow(0 0 5px rgba(255, 255, 255, 0.8))";
+            svg.appendChild(rect);
+            return svg;
+        }
+
+        function spawnItems() {
+            if (!gatheringGameActive) return;
+            const item = document.createElement('div');
+            item.className = 'falling-item';
+            item.style.left = Math.random() * (miniGameElement.clientWidth - 40) + 'px';
+            const isFood = Math.random() < 0.5;
+            const star = createGraffitiStar(isFood ? '#FFD700' : '#00BFFF');
+            item.appendChild(star);
+            miniGameElement.appendChild(item);
+
+            let itemPosition = 0;
+            const fallInterval = setInterval(() => {
+                if (!gatheringGameActive) {
+                    clearInterval(fallInterval);
+                    return;
+                }
+                itemPosition += 5;
+                item.style.top = itemPosition + 'px';
+                if (itemPosition >= 260) {
+                    const itemLeft = parseInt(item.style.left);
+                    if (itemLeft >= basketPosition - 20 && itemLeft <= basketPosition + basketElement.offsetWidth - 20) {
+                        if (isFood) {
+                            resources.food++;
+                        } else {
+                            resources.water++;
+                        }
+                        playSound('star-sound');
+                        updateDisplay();
+                    }
+                    miniGameElement.removeChild(item);
+                    clearInterval(fallInterval);
+                }
+            }, 50);
+
+            if (gatheringGameActive) {
+                setTimeout(spawnItems, Math.random() * 1000 + 500);
+            }
+        }
+
+        function spawnPresent() {
+            if (!gatheringGameActive) return;
+            const present = document.createElement('div');
+            present.className = 'falling-item';
+            present.style.left = Math.random() * (miniGameElement.clientWidth - 40) + 'px';
+            const gift = createPresent('#FF0000');
+            present.appendChild(gift);
+            miniGameElement.appendChild(present);
+
+            let presentPosition = 0;
+            const fallInterval = setInterval(() => {
+                if (!gatheringGameActive) {
+                    clearInterval(fallInterval);
+                    return;
+                }
+                presentPosition += 5;
+                present.style.top = presentPosition + 'px';
+                if (presentPosition >= 260) {
+                    const presentLeft = parseInt(present.style.left);
+                    if (presentLeft >= basketPosition - 20 && presentLeft <= basketPosition + basketElement.offsetWidth - 20) {
+                        resources.rareItem++;
+                        playSound('present-sound');
+                        updateDisplay();
+                    }
+                    miniGameElement.removeChild(present);
+                    clearInterval(fallInterval);
+                }
+            }, 50);
+        }
+
+        function endGatheringGame() {
+            gatheringGameActive = false;
+            miniGameElement.style.display = 'none';
+            document.removeEventListener('mousemove', moveBasket);
+            document.removeEventListener('touchmove', moveBasketTouch);
+            while (miniGameElement.firstChild) {
+                miniGameElement.removeChild(miniGameElement.firstChild);
+            }
+            miniGameElement.appendChild(basketElement);
+            gainExp(20);
+            updateDisplay();
+            saveGame();
+        }
+
+        function customAlert(message) {
+            const alertBox = document.createElement('div');
+            alertBox.style.position = 'fixed';
+            alertBox.style.top = '50%';
+            alertBox.style.left = '50%';
+            alertBox.style.transform = 'translate(-50%, -50%)';
+            alertBox.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
+            alertBox.style.color = '#fff';
+            alertBox.style.padding = '20px';
+            alertBox.style.borderRadius = '10px';
+            alertBox.style.boxShadow = '0 0 15px rgba(0, 0, 0, 0.3)';
+            alertBox.innerText = message;
+
+            const okButton = document.createElement('button');
+            okButton.style.marginTop = '10px';
+            okButton.style.padding = '10px 20px';
+            okButton.style.border = 'none';
+            okButton.style.borderRadius = '5px';
+            okButton.style.backgroundColor = '#007bff';
+            okButton.style.color = '#fff';
+            okButton.style.cursor = 'pointer';
+            okButton.innerText = 'OK';
+            okButton.onclick = () => {
+                document.body.removeChild(alertBox);
+            };
+
+            alertBox.appendChild(okButton);
+            document.body.appendChild(alertBox);
+        }
+
+        function getColorForCosmetic(cosmetic) {
+            switch (cosmetic) {
+                case 'red':
+                    return 'red';
+                case 'blue':
+                    return 'blue';
+                case 'green':
+                    return 'green';
+                case 'yellow':
+                    return 'yellow';
+                case 'purple':
+                    return 'purple';
+                default:
+                    return 'none';
+            }
+        }
+
+        updateDisplay();
+        setInterval(gameLoop, 1000);
+
+        // Tower Defense Game Integration
+        const canvas = document.getElementById('tower-defense-canvas');
+        const ctx = canvas.getContext('2d');
+        const tdStartButton = document.getElementById('td-start-button');
+        const tdPresenceDisplay = document.getElementById('td-presence-display');
+        const tdWaveDisplay = document.getElementById('td-wave-display');
+        const tdHealthDisplay = document.getElementById('td-health-display');
+        const tdContextMenu = document.getElementById('td-context-menu');
+        const tdContextMenuUpgrade = document.createElement('button');
+        const tdContextMenuSpecial = document.createElement('button');
+
+        tdContextMenu.appendChild(tdContextMenuUpgrade);
+        tdContextMenu.appendChild(tdContextMenuSpecial);
+
+        let tdGameActive = false;
+        let tdSelectedTower = null;
+        let tdEnemySpawnInterval;
+        let tdClickedTower = null;
+
+        const tdGameState = {
+            towers: [],
+            enemies: [],
+            path: [
+                {x: 0, y: 250},
+                {x: 200, y: 250},
+                {x: 200, y: 150},
+                {x: 600, y: 150},
+                {x: 600, y: 450},
+                {x: 800, y: 450}
+            ],
+            presence: 200,
+            wave: 0,
+            health: 100
+        };
+
+        const tdImages = {
+            goaden: { tower: null, attack: null },
+            ashai: { tower: null, attack: null },
+            yukon: { tower: null, attack_bear: null, attack_cheetah: null, attack_bird: null },
+            whisper: { tower: null, attack: null },
+            chill: { tower: null, attack: null },
+            enemy: { normal: null, fast: null, spectral: null },
+            adventureBackground: null
+        };
+
+        const tdSounds = {
+            goaden: new Audio('sounds/goaden_special.mp3'),
+            ashai: new Audio('sounds/ashai_special.mp3'),
+            yukon: new Audio('sounds/yukon_special.mp3'),
+            whisper: new Audio('sounds/whisper_special.mp3'),
+            chill: new Audio('sounds/chill_special.mp3')
+        };
+
+        function loadImage(src) {
+            return new Promise((resolve, reject) => {
+                const img = new Image();
+                img.onload = () => resolve(img);
+                img.onerror = reject;
+                img.src = src;
+            });
+        }
+
+        async function loadAllImages() {
+            try {
+                tdImages.goaden.tower = await loadImage('images/goaden_tower.png');
+                tdImages.goaden.attack = await loadImage('images/goaden_attack.png');
+                tdImages.ashai.tower = await loadImage('images/ashai_tower.png');
+                tdImages.ashai.attack = await loadImage('images/ashai_attack.png');
+                tdImages.yukon.tower = await loadImage('images/yukon_tower.png');
+                tdImages.yukon.attack_bear = await loadImage('images/yukon_attack_bear.png');
+                tdImages.yukon.attack_cheetah = await loadImage('images/yukon_attack_cheetah.png');
+                tdImages.yukon.attack_bird = await loadImage('images/yukon_attack_bird.png');
+                tdImages.whisper.tower = await loadImage('images/whisper_tower.png');
+                tdImages.whisper.attack = await loadImage('images/whisper_attack.png');
+                tdImages.chill.tower = await loadImage('images/chill_tower.png');
+                tdImages.chill.attack = await loadImage('images/chill_attack.png');
+                tdImages.enemy.normal = await loadImage('images/enemy_normal.png');
+                tdImages.enemy.fast = await loadImage('images/enemy_fast.png');
+                tdImages.enemy.spectral = await loadImage('images/enemy_spectral.png');
+                tdImages.adventureBackground = await loadImage('images/adventure_game_background.png');
+                console.log('All tower defense images loaded successfully');
+            } catch (error) {
+                console.error('Error loading tower defense images:', error);
+            }
+        }
+
+        class TDTower {
+    constructor(x, y, type) {
+        this.x = x;
+        this.y = y;
+        this.type = type;
+        this.radius = 30;
+        this.attackRange = 100;
+        this.attackDamage = 10;
+        this.attackSpeed = 1;
+        this.lastAttack = 0;
+        this.level = 1;
+        this.upgradeCost = 50;
+        this.specialAbilityCooldown = 0;
+        this.maxSpecialAbilityCooldown = 30000; // 30 seconds
+
+        switch(type) {
+            case 'Goaden':
+                this.attackDamage = 20;
+                this.attackRange = 120;
+                this.specialAbility = this.demonsLegion;
+                break;
+            case 'Ashai':
+                this.attackRange = 150;
+                this.specialAbility = this.healPlayer;
+                break;
+            case 'Yukon':
+                this.currentForm = 'Bear';
+                this.formCooldown = 0;
+                this.specialAbility = this.primalSurge;
+                break;
+            case 'Whisper':
+                this.critChance = 0.2;
+                this.specialAbility = this.poisonEnemies;
+                break;
+            case 'Chill':
+                this.slowEffect = 0.2;
+                this.specialAbility = this.wintersEmbrace;
+                break;
+        }
+    }
+
+    draw() {
+        try {
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.attackRange, 0, Math.PI * 2);
+            ctx.strokeStyle = 'rgba(0, 0, 255, 0.2)';
+            ctx.stroke();
+            ctx.closePath();
+
+            const image = tdImages[this.type.toLowerCase()].tower;
+            ctx.drawImage(image, this.x - this.radius, this.y - this.radius, this.radius * 2, this.radius * 2);
+
+            ctx.fillStyle = 'white';
+            ctx.font = '12px Arial';
+            ctx.fillText(this.type[0] + this.level, this.x - 8, this.y + 4);
+
+            if (this.specialAbilityCooldown > 0) {
+                const cooldownPercentage = this.specialAbilityCooldown / this.maxSpecialAbilityCooldown;
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+                ctx.beginPath();
+                ctx.moveTo(this.x, this.y);
+                ctx.arc(this.x, this.y, this.radius, -Math.PI/2, -Math.PI/2 + (1 - cooldownPercentage) * Math.PI * 2);
+                ctx.lineTo(this.x, this.y);
+                ctx.fill();
+            }
+            drawTowerButtons(this);
+        } catch (error) {
+            console.error('Error drawing tower:', error);
+        }
+    }
+
+    attack(enemies) {
+        // ... existing attack method ...
+    }
+
+    // ... other existing methods ...
+
+    updateCooldowns(deltaTime) {
+        if (this.specialAbilityCooldown > 0) {
+            this.specialAbilityCooldown = Math.max(0, this.specialAbilityCooldown - deltaTime);
+        }
+    }
+
+    useSpecialAbility() {
+        if (this.specialAbilityCooldown === 0) {
+            this.specialAbility();
+            this.specialAbilityCooldown = this.maxSpecialAbilityCooldown;
+        } else {
+            console.log(`${this.type}'s special ability is on cooldown. ${Math.ceil(this.specialAbilityCooldown / 1000)} seconds remaining.`);
+        }
+    }
+
+            attack(enemies) {
+                try {
+                    const now = Date.now();
+                    if (now - this.lastAttack > 1000 / this.attackSpeed) {
+                        for (let enemy of enemies) {
+                            const dx = enemy.x - this.x;
+                            const dy = enemy.y - this.y;
+                            const distance = Math.sqrt(dx * dx + dy * dy);
+                            if (distance <= this.attackRange) {
+                                let damage = this.attackDamage;
+
+                                switch(this.type) {
+                                    case 'Goaden':
+                                        this.goadenAttack(enemy, damage);
+                                        break;
+                                    case 'Ashai':
+                                        this.ashaiAttack(enemy, damage);
+                                        break;
+                                    case 'Yukon':
+                                        this.yukonAttack(enemy, damage, now);
+                                        break;
+                                    case 'Whisper':
+                                        this.whisperAttack(enemy, damage);
+                                        break;
+                                    case 'Chill':
+                                        this.chillAttack(enemy, damage);
+                                        break;
+                                }
+
+                                this.lastAttack = now;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (this.specialAbilityCooldown > 0) {
+                        this.specialAbilityCooldown = Math.max(0, this.specialAbilityCooldown - 16);
+                    }
+                } catch (error) {
+                    console.error('Error during attack:', error);
+                }
+            }
+
+            goadenAttack(enemy, damage) {
+                try {
+                    if (enemy.allegiance !== 'tower') {
+                        enemy.health -= damage;
+                    }
+                    if (this.level >= 2) {
+                        tdGameState.towers.forEach(tower => {
+                            if (tower !== this && Math.sqrt((tower.x - this.x)**2 + (tower.y - this.y)**2) <= this.attackRange) {
+                                tower.attackDamage *= 1.2;
+                                setTimeout(() => { tower.attackDamage /= 1.2; }, 5000);
+                            }
+                        });
+                    }
+                    this.drawAttackEffect(enemy);
+                } catch (error) {
+                    console.error('Error in Goaden attack:', error);
+                }
+            }
+
+            ashaiAttack(enemy, damage) {
+                try {
+                    enemy.health -= damage;
+                    if (this.level >= 2) {
+                        tdGameState.towers.forEach(tower => {
+                            if (tower !== this && Math.sqrt((tower.x - this.x)**2 + (tower.y - this.y)**2) <= this.attackRange) {
+                                tower.shielded = true;
+                                setTimeout(() => { tower.shielded = false; }, 5000);
+                            }
+                        });
+                    }
+                    this.drawAttackEffect(enemy);
+                } catch (error) {
+                    console.error('Error in Ashai attack:', error);
+                }
+            }
+
+            yukonAttack(enemy, damage, now) {
+                try {
+                    if (now > this.formCooldown) {
+                        this.currentForm = ['Bear', 'Cheetah', 'Bird'][Math.floor(Math.random() * 3)];
+                        this.formCooldown = now + (this.level >= 2 ? 3000 : 5000);
+                        tdGameState.enemies.forEach(e => {
+                            if (Math.sqrt((e.x - this.x)**2 + (e.y - this.y)**2) <= this.attackRange) {
+                                e.stunned = true;
+                                setTimeout(() => { e.stunned = false; }, 1000);
+                            }
+                        });
+                    }
+                    switch(this.currentForm) {
+                        case 'Bear':
+                            damage *= 2;
+                            this.attackSpeed = 0.5;
+                            break;
+                        case 'Cheetah':
+                            damage *= 0.5;
+                            this.attackSpeed = 2;
+                            break;
+                        case 'Bird':
+                            tdGameState.enemies.forEach(e => {
+                                if (Math.sqrt((e.x - this.x)**2 + (e.y - this.y)**2) <= this.attackRange) {
+                                    e.health -= damage * 0.5;
+                                }
+                            });
+                            break;
+                    }
+                    enemy.health -= damage;
+                    this.drawAttackEffect(enemy);
+                } catch (error) {
+                    console.error('Error in Yukon attack:', error);
+                }
+            }
+
+            whisperAttack(enemy, damage) {
+                try {
+                    if (Math.random() < this.critChance) {
+                        damage *= 2;
+                    }
+                    if (this.level >= 2 && Math.random() < 0.1) {
+                        enemy.health = 0;
+                    }
+                    enemy.health -= damage;
+                    const angle = Math.atan2(enemy.y - this.y, enemy.x - this.x);
+                    tdGameState.enemies.forEach(e => {
+                        if (e !== enemy && Math.abs(Math.atan2(e.y - this.y, e.x - this.x) - angle) < 0.1) {
+                            e.health -= damage * 0.5;
+                        }
+                    });
+                    this.drawAttackEffect(enemy);
+                } catch (error) {
+                    console.error('Error in Whisper attack:', error);
+                }
+            }
+
+            chillAttack(enemy, damage) {
+                try {
+                    enemy.health -= damage;
+                    enemy.speed *= (1 - this.slowEffect);
+                    if (this.level >= 2) {
+                        tdGameState.enemies.forEach(nearbyEnemy => {
+                            const nearbyDistance = Math.sqrt((nearbyEnemy.x - enemy.x)**2 + (nearbyEnemy.y - enemy.y)**2);
+                            if (nearbyDistance <= 50) {
+                                nearbyEnemy.health -= damage * 0.5;
+                                nearbyEnemy.speed *= (1 - this.slowEffect * 0.5);
+                            }
+                        });
+                    }
+                    this.drawAttackEffect(enemy);
+                } catch (error) {
+                    console.error('Error in Chill attack:', error);
+                }
+            }
+
+            drawAttackEffect(enemy) {
+                try {
+                    const image = this.type === 'Yukon' ? 
+                        tdImages.yukon['attack_' + this.currentForm.toLowerCase()] :
+                        tdImages[this.type.toLowerCase()].attack;
+                    const angle = Math.atan2(enemy.y - this.y, enemy.x - this.x);
+                    const distance = Math.sqrt((enemy.x - this.x)**2 + (enemy.y - this.y)**2);
+                    
+                    ctx.save();
+                    ctx.translate(this.x, this.y);
+                    ctx.rotate(angle);
+                    
+                    for (let i = 0; i < distance; i += 30) {
+                        ctx.drawImage(image, i, -15, 30, 30);
+                    }
+                    
+                    ctx.restore();
+                } catch (error) {
+                    console.error('Error drawing attack effect:', error);
+                }
+            }
+
+            upgrade() {
+                try {
+                    if (tdGameState.presence >= this.upgradeCost && this.level < 3) {
+                        tdGameState.presence -= this.upgradeCost;
+                        this.level++;
+                        this.attackDamage *= 1.5;
+                        this.attackSpeed *= 1.2;
+                        this.attackRange *= 1.2;
+                        return true;
+                    }
+                    return false;
+                } catch (error) {
+                    console.error('Error upgrading tower:', error);
+                    return false;
+                }
+            }
+
+            demonsLegion() {
+                try {
+                    if (this.specialAbilityCooldown === 0) {
+                        const spectralCount = this.level;
+                        for (let i = 0; i < spectralCount; i++) {
+                            const spectral = new TDEnemy('spectral', 0, this.x, this.y);
+                            spectral.allegiance = 'tower';
+                            tdGameState.enemies.push(spectral);
+                        }
+                        this.specialAbilityCooldown = 40000;
+                        tdSounds.goaden.play();
+                    }
+                } catch (error) {
+                    console.error('Error using Goaden special ability:', error);
+                }
+            }
+
+            healPlayer() {
+                try {
+                    if (this.specialAbilityCooldown === 0) {
+                        tdGameState.health += 30;
+                        if (tdGameState.health > 100) tdGameState.health = 100;
+                        this.specialAbilityCooldown = 25000;
+                        tdSounds.ashai.play();
+                    }
+                } catch (error) {
+                    console.error('Error using Ashai special ability:', error);
+                }
+            }
+
+            primalSurge() {
+                try {
+                    if (this.specialAbilityCooldown === 0) {
+                        const duration = 10000;
+                        const originalAttackDamage = this.attackDamage;
+                        const originalAttackSpeed = this.attackSpeed;
+                        const originalAttackRange = this.attackRange;
+
+                        this.attackDamage *= 3;
+                        this.attackSpeed *= 2;
+                        this.attackRange *= 1.5;
+
+                        setTimeout(() => {
+                            this.attackDamage = originalAttackDamage;
+                            this.attackSpeed = originalAttackSpeed;
+                            this.attackRange = originalAttackRange;
+                        }, duration);
+
+                        this.specialAbilityCooldown = 40000;
+                        tdSounds.yukon.play();
+                    }
+                } catch (error) {
+                    console.error('Error using Yukon special ability:', error);
+                }
+            }
+
+            poisonEnemies() {
+                try {
+                    if (this.specialAbilityCooldown === 0) {
+                        const enemiesInRange = tdGameState.enemies.filter(enemy => 
+                            Math.sqrt((enemy.x - this.x)**2 + (enemy.y - this.y)**2) <= this.attackRange
+                        );
+                        for (let enemy of enemiesInRange) {
+                            enemy.poisoned = true;
+                            enemy.poisonDuration = 5000;
+                        }
+                        this.specialAbilityCooldown = 40000;
+                        tdSounds.whisper.play();
+                    }
+                } catch (error) {
+                    console.error('Error using Whisper special ability:', error);
+                }
+            }
+
+            wintersEmbrace() {
+                try {
+                    if (this.specialAbilityCooldown === 0) {
+                        tdGameState.enemies.forEach(enemy => {
+                            enemy.frozen = true;
+                            enemy.frozenTimer = 5000;
+                        });
+                        this.specialAbilityCooldown = 35000;
+                        tdSounds.chill.play();
+                    }
+                } catch (error) {
+                    console.error('Error using Chill special ability:', error);
+                }
+            }
+        }
+
+        class TDEnemy {
+            constructor(type, startIndex = 0, startX = null, startY = null) {
+                this.x = startX !== null ? startX : tdGameState.path[startIndex].x;
+                this.y = startY !== null ? startY : tdGameState.path[startIndex].y;
+                this.radius = 15;
+                this.speed = type === 'fast' ? 1.5 : 1;
+                this.health = type === 'fast' ? 50 : 100;
+                this.maxHealth = this.health;
+                this.pathIndex = startIndex;
+                this.type = type;
+                this.stunned = false;
+                this.frozen = false;
+                this.frozenTimer = 0;
+                this.allegiance = 'enemy';
+                this.poisoned = false;
+                this.poisonDuration = 0;
+                this.damage = type === 'spectral' ? 20 : 10;
+            }
+
+            draw() {
+                try {
+                    const image = tdImages.enemy[this.type] || tdImages.enemy.normal;
+                    ctx.drawImage(image, this.x - this.radius, this.y - this.radius, this.radius * 2, this.radius * 2);
+
+                    if (this.allegiance !== 'tower' || this.type !== 'spectral') {
+                        ctx.fillStyle = 'red';
+                        ctx.fillRect(this.x - 15, this.y - 20, 30, 5);
+                        ctx.fillStyle = 'green';
+                        ctx.fillRect(this.x - 15, this.y - 20, 30 * (this.health / this.maxHealth), 5);
+                    }
+
+                    if (this.poisoned) {
+                        ctx.fillStyle = 'rgba(128, 0, 128, 0.5)';
+                        ctx.beginPath();
+                        ctx.arc(this.x, this.y, this.radius + 5, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+
+                    if (this.stunned) {
+                        ctx.fillStyle = 'yellow';
+                        ctx.beginPath();
+                        ctx.arc(this.x, this.y - 25, 5, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+
+                    if (this.frozen) {
+                        ctx.fillStyle = 'rgba(0, 255, 255, 0.3)';
+                        ctx.beginPath();
+                        ctx.arc(this.x, this.y, this.radius + 5, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                } catch (error) {
+                    console.error('Error drawing enemy:', error);
+                }
+            }
+
+            move() {
+                try {
+                    if (this.stunned || this.frozen) return false;
+
+                    const target = tdGameState.path[this.pathIndex];
+                    const dx = target.x - this.x;
+                    const dy = target.y - this.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+
+                    if (distance < this.speed) {
+                        this.pathIndex++;
+                        if (this.pathIndex >= tdGameState.path.length) {
+                            if (this.allegiance === 'enemy') {
+                                tdGameState.health -= this.damage;
+                            }
+                            return true;
+                        }
+                    } else {
+                        this.x += (dx / distance) * this.speed;
+                        this.y += (dy / distance) * this.speed;
+                    }
+                    return false;
+                } catch (error) {
+                    console.error('Error moving enemy:', error);
+                    return false;
+                }
+            }
+
+            update() {
+                try {
+                    if (this.frozenTimer > 0) {
+                        this.frozenTimer -= 16;
+                        if (this.frozenTimer <= 0) {
+                            this.frozen = false;
+                        }
+                    }
+
+                    if (this.poisoned) {
+                        this.poisonDuration -= 16;
+                        this.health -= 0.1;
+                        if (this.poisonDuration <= 0) {
+                            this.poisoned = false;
+                        }
+                    }
+
+                    if (this.allegiance === 'tower') {
+                        tdGameState.enemies.forEach(enemy => {
+                            if (enemy.allegiance === 'enemy' && Math.sqrt((enemy.x - this.x) ** 2 + (enemy.y - this.y) ** 2) < 30) {
+                                enemy.health -= this.damage / 10;
+                            }
+                        });
+                        this.pathIndex = this.pathIndex || 0;
+                        this.move();
+                    }
+                } catch (error) {
+                    console.error('Error updating enemy:', error);
+                }
+            }
+        }
+
+        function handleTDSpecialAbility(tower) {
+    try {
+        tower.useSpecialAbility();
+    } catch (error) {
+        console.error('Error handling special ability:', error);
+    }
+}
+
+        function spawnTDEnemy() {
+            try {
+                if (tdGameActive) {
+                    const enemyType = Math.random() < 0.3 ? 'fast' : 'normal';
+                    tdGameState.enemies.push(new TDEnemy(enemyType, 0));
+                }
+            } catch (error) {
+                console.error('Error spawning enemy:', error);
+            }
+        }
+
+        function drawTDPath() {
+            try {
+                ctx.beginPath();
+                ctx.moveTo(tdGameState.path[0].x, tdGameState.path[0].y);
+                for (let i = 1; i < tdGameState.path.length; i++) {
+                    ctx.lineTo(tdGameState.path[i].x, tdGameState.path[i].y);
+                }
+                ctx.strokeStyle = 'gray';
+                ctx.stroke();
+                ctx.closePath();
+            } catch (error) {
+                console.error('Error drawing path:', error);
+            }
+        }
+
+        function updateTDUI() {
+            try {
+                tdPresenceDisplay.textContent = `Presence: ${tdGameState.presence}`;
+                tdWaveDisplay.textContent = `Wave: ${tdGameState.wave}`;
+                tdHealthDisplay.textContent = `Health: ${tdGameState.health}`;
+            } catch (error) {
+                console.error('Error updating UI:', error);
+            }
+        }
+
+        let lastUpdateTime = Date.now();
+
+function tdGameLoop() {
+    try {
+        if (!tdGameActive) return;
+
+        const currentTime = Date.now();
+        const deltaTime = currentTime - lastUpdateTime;
+        lastUpdateTime = currentTime;
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(tdImages.adventureBackground, 0, 0, canvas.width, canvas.height);
+
+        drawTDPath();
+
+        for (let tower of tdGameState.towers) {
+            tower.updateCooldowns(deltaTime);
+            tower.draw();
+            tower.attack(tdGameState.enemies);
+        }
+
+        tdGameState.enemies = tdGameState.enemies.filter(enemy => {
+            enemy.draw();
+            enemy.update();
+            const reachedEnd = enemy.move();
+            
+            if (enemy.health <= 0) {
+                if (enemy.allegiance === 'enemy') tdGameState.presence += 10;
+                return false;
+            }
+            
+            if (reachedEnd) {
+                if (enemy.allegiance === 'enemy') {
+                    tdGameState.health -= enemy.damage;
+                }
+                return false;
+            }
+            
+            return true;
+        });
+
+        updateTDUI();
+        checkTDGameOver();
+
+        requestAnimationFrame(tdGameLoop);
+    } catch (error) {
+        console.error('Error in game loop:', error);
+    }
+}
+
+        function checkTDGameOver() {
+            try {
+                if (tdGameState.health <= 0) {
+                    tdGameActive = false;
+                    const wavesCompleted = tdGameState.wave;
+                    const xpGained = Math.floor(wavesCompleted / 2) * 50;
+                    const resourcesGained = Math.floor(wavesCompleted / 2) * 10;
+                    const rareItemsGained = Math.floor(wavesCompleted / 3); // Gain 1 rare item every 3 waves
+
+                    alert(`Game Over! You survived ${wavesCompleted} waves!`);
+                    
+                    const currentData = currentEgg === 'lintel' ? lintel : prowler;
+                    currentData.exp += xpGained;
+                    resources.food += resourcesGained;
+                    resources.water += resourcesGained;
+                    resources.rareItem += rareItemsGained; // Add rare items
+
+                    updateDisplay();
+                    saveGame();
+
+                    document.getElementById('tower-defense-container').style.display = 'none';
+                    document.getElementById('game-container').style.display = 'block';
+
+                    tdStartButton.disabled = false;
+                }
+            } catch (error) {
+                console.error('Error checking game over:', error);
+            }
+        }
+
+        function increaseTDDifficulty() {
+            try {
+                if (tdGameActive) {
+                    if (tdGameState.wave % 5 === 0) {
+                        tdGameState.enemies.push(new TDEnemy('fast', 0));
+                    }
+                    tdGameState.enemies.push(new TDEnemy('normal', 0));
+                    if (tdGameState.wave % 7 === 0) {
+                        tdGameState.enemies.push(new TDEnemy('spectral', 0));
+                    }
+                    tdGameState.wave++;
+                    updateTDUI();
+                }
+            } catch (error) {
+                console.error('Error increasing difficulty:', error);
+            }
+        }
+
+        function initTowerDefense() {
+            try {
+                loadAllImages();
+                tdGameState.towers = [];
+                tdGameState.enemies = [];
+                tdGameState.presence = 200;
+                tdGameState.wave = 0;
+                tdGameState.health = 100;
+                tdGameActive = false;
+                updateTDUI();
+            } catch (error) {
+                console.error('Error initializing tower defense:', error);
+            }
+        }
+
+        tdStartButton.addEventListener('click', () => {
+            try {
+                lastUpdateTime = Date.now();
+                tdGameActive = true;
+                tdGameState.wave = 0;
+                tdGameState.health = 100;
+                tdGameState.presence = 200;
+                tdGameState.enemies = [];
+                tdGameState.towers = [];
+                tdGameLoop();
+                tdStartButton.disabled = true;
+                tdEnemySpawnInterval = setInterval(spawnTDEnemy, 2000);
+                setInterval(increaseTDDifficulty, 10000);
+            } catch (error) {
+                console.error('Error starting tower defense:', error);
+            }
+        });
+
+        document.getElementById('td-place-goaden').addEventListener('click', () => placeTDTower('Goaden'));
+        document.getElementById('td-place-ashai').addEventListener('click', () => placeTDTower('Ashai'));
+        document.getElementById('td-place-yukon').addEventListener('click', () => placeTDTower('Yukon'));
+        document.getElementById('td-place-whisper').addEventListener('click', () => placeTDTower('Whisper'));
+        document.getElementById('td-place-chill').addEventListener('click', () => placeTDTower('Chill'));
+
+        canvas.addEventListener('click', (event) => {
+    try {
+        const rect = canvas.getBoundingClientRect();
+        const x = event.clientX - rect.left;
+        const y = event.clientY - rect.top;
+
+        for (let tower of tdGameState.towers) {
+            const dx = x - tower.x;
+            const dy = y - tower.y;
+            
+            // Check if click is on upgrade button
+            if (Math.abs(dx) < 30 && dy < -tower.radius && dy > -tower.radius - 40) {
+                if (tower.upgrade()) {
+                    console.log('Tower upgraded');
+                    updateTDUI();
+                } else {
+                    console.log('Not enough resources to upgrade');
+                }
+                return;
+            }
+            
+            // Check if click is on special ability button
+            if (Math.abs(dx) < 30 && dy > tower.radius && dy < tower.radius + 40) {
+                handleTDSpecialAbility(tower);
+                return;
+            }
+
+            // Check if click is on the tower itself
+            if (dx*dx + dy*dy < tower.radius*tower.radius) {
+                tdClickedTower = tower;
+                showTDContextMenu(event.clientX, event.clientY, tower);
+                return;
+            }
+        }
+        hideTDContextMenu();
+    } catch (error) {
+        console.error('Error handling canvas click:', error);
+    }
+});
+
+        function placeTDTower(type) {
+            try {
+                if (tdGameState.presence >= 75) {
+                    canvas.addEventListener('click', function placeTower(event) {
+                        const rect = canvas.getBoundingClientRect();
+                        const x = event.clientX - rect.left;
+                        const y = event.clientY - rect.top;
+
+                        tdGameState.towers.push(new TDTower(x, y, type));
+                        tdGameState.presence -= 75;
+
+                        canvas.removeEventListener('click', placeTower);
+                    });
+                }
+            } catch (error) {
+                console.error('Error placing tower:', error);
+            }
+        }
+
+        function drawTowerButtons(tower) {
+    const boxWidth = 60;
+    const boxHeight = 40;
+    const padding = 5;
+    
+    // Draw upgrade button
+    ctx.fillStyle = 'rgba(0, 255, 0, 0.6)';
+    ctx.fillRect(tower.x - boxWidth/2, tower.y - tower.radius - boxHeight - padding, boxWidth, boxHeight);
+    
+    // Draw special ability button
+    ctx.fillStyle = 'rgba(255, 255, 0, 0.6)';
+    ctx.fillRect(tower.x - boxWidth/2, tower.y + tower.radius + padding, boxWidth, boxHeight);
+    
+    ctx.fillStyle = 'black';
+    ctx.font = '10px Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText('Upgrade', tower.x, tower.y - tower.radius - boxHeight/2 - padding);
+    ctx.fillText('Special', tower.x, tower.y + tower.radius + boxHeight/2 + padding);
+}
+
+function showTDContextMenu(x, y, tower) {
+    try {
+        tdContextMenu.style.left = x + 'px';
+        tdContextMenu.style.top = y + 'px';
+        tdContextMenu.style.display = 'block';
+
+        tdContextMenuUpgrade.textContent = `Upgrade (${tower.upgradeCost} Presence)`;
+        tdContextMenuUpgrade.onclick = () => {
+            if (tower.upgrade()) {
+                hideTDContextMenu();
+            }
+        };
+
+        tdContextMenuSpecial.textContent = `Special Ability`;
+        tdContextMenuSpecial.onclick = () => {
+            handleTDSpecialAbility(tower);
+            hideTDContextMenu();
+        };
+    } catch (error) {
+        console.error('Error showing context menu:', error);
+    }
+}
+
+function hideTDContextMenu() {
+    try {
+        tdContextMenu.style.display = 'none';
+    } catch (error) {
+        console.error('Error hiding context menu:', error);
+    }
+}
+
+canvas.addEventListener('click', (event) => {
+    try {
+        const rect = canvas.getBoundingClientRect();
+        const x = event.clientX - rect.left;
+        const y = event.clientY - rect.top;
+
+        for (let tower of tdGameState.towers) {
+            const dx = x - tower.x;
+            const dy = y - tower.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            if (distance < tower.radius) {
+                tdClickedTower = tower;
+                showTDContextMenu(event.clientX, event.clientY, tower);
+                return;
+            }
+            
+            // Check if click is within the button box
+            if (x > tower.x + tower.radius && x < tower.x + tower.radius + 80 &&
+                y > tower.y - 25 && y < tower.y + 25) {
+                // Upper half is upgrade, lower half is special ability
+                if (y < tower.y) {
+                    if (tower.upgrade()) {
+                        console.log('Tower upgraded');
+                        updateTDUI();
+                    } else {
+                        console.log('Not enough resources to upgrade');
+                    }
+                } else {
+                    handleTDSpecialAbility(tower);
+                }
+                return; // Exit the loop if a button was clicked
+            }
+        }
+        hideTDContextMenu();
+    } catch (error) {
+        console.error('Error handling canvas click:', error);
+    }
+});
+
+loadAllImages().then(() => {
+    console.log('All images loaded');
+    tdGameLoop();
+});
+</script>
+</body>
+</html>
