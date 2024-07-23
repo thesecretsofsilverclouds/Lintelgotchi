@@ -355,6 +355,7 @@
                 <div id="td-wave-display">Wave: 0</div>
                 <div id="td-health-display">Health: 100</div>
             </div>
+            <button id="td-exit-button">Exit Game</button>
         </div>
         <div id="td-context-menu" class="tower-menu"></div>
     </div>
@@ -1908,6 +1909,38 @@ canvas.addEventListener('click', (event) => {
         console.error('Error handling canvas click:', error);
     }
 });
+document.getElementById('td-exit-button').addEventListener('click', exitTowerDefense);
+
+function exitTowerDefense() {
+    // Save resources gained during the Tower Defense game
+    const wavesCompleted = tdGameState.wave;
+    const xpGained = Math.floor(wavesCompleted / 2) * 50;
+    const resourcesGained = Math.floor(wavesCompleted / 2) * 10;
+    const rareItemsGained = Math.floor(wavesCompleted / 3); // Gain 1 rare item every 3 waves
+
+    const currentData = currentEgg === 'lintel' ? lintel : prowler;
+    currentData.exp += xpGained;
+    resources.food += resourcesGained;
+    resources.water += resourcesGained;
+    resources.rareItem += rareItemsGained; // Add rare items
+
+    updateDisplay();
+    saveGame();
+
+    // Stop the Tower Defense game
+    tdGameActive = false;
+    clearInterval(tdEnemySpawnInterval);
+
+    // Hide the Tower Defense container and show the main game container
+    document.getElementById('tower-defense-container').style.display = 'none';
+    document.getElementById('game-container').style.display = 'block';
+
+    // Enable the start button for future games
+    tdStartButton.disabled = false;
+
+    alert(`You exited the game after ${wavesCompleted} waves! You gained ${xpGained} XP, ${resourcesGained} food, ${resourcesGained} water, and ${rareItemsGained} rare items.`);
+}
+
 
 loadAllImages().then(() => {
     console.log('All images loaded');
