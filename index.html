@@ -797,11 +797,6 @@
 
         function startGatheringGame() {
             if (gatheringGameActive) return;
-            const currentData = currentEgg === 'lintel' ? lintel : prowler;
-            if (currentData.stage === 'egg' || currentData.stage === 'cracked_egg') {
-                customAlert("Your egg can't go gathering yet!");
-                return;
-            }
             if (Math.random() < 0.05) {
                 tiredUntil = Date.now() + 600000;
                 customAlert(`${currentEgg === 'lintel' ? 'Lintel' : 'Prowler'} got into a fight with a sprite and is tired! Give them some rest!`);
