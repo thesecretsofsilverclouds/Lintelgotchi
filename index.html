@@ -623,6 +623,7 @@
             if (Date.now() < tiredUntil) {
                 customAlert(`${currentEgg === 'lintel' ? 'Lintel' : 'Prowler'} is tired! Give them some rest for ${Math.ceil((tiredUntil - Date.now()) / 1000)} more minute(s).`);
                 return;
+                }
             }
             switch (action) {
                 case 'feed':
@@ -1949,4 +1950,5 @@ loadAllImages().then(() => {
 </script>
 </body>
 </html>
+
 
