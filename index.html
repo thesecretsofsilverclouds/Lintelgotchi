@@ -617,8 +617,11 @@
 
         function handleButtonClick(action) {
             playSound('button-sound');
+            const currentData = currentEgg === 'lintel' ? lintel : prowler;
+    // Only check tired state if NOT in egg or cracked_egg stage
+    if (currentData.stage !== 'egg' && currentData.stage !== 'cracked_egg') {
             if (Date.now() < tiredUntil) {
-                customAlert(`${currentEgg === 'lintel' ? 'Lintel' : 'Prowler'} is tired! Give them some rest for ${Math.ceil((tiredUntil - Date.now()) / 60000)} more minute(s).`);
+                customAlert(`${currentEgg === 'lintel' ? 'Lintel' : 'Prowler'} is tired! Give them some rest for ${Math.ceil((tiredUntil - Date.now()) / 1000)} more minute(s).`);
                 return;
             }
             switch (action) {
@@ -797,8 +800,10 @@
 
         function startGatheringGame() {
             if (gatheringGameActive) return;
-            if (Math.random() < 0.05) {
-                tiredUntil = Date.now() + 600000;
+            const currentData = currentEgg === 'lintel' ? lintel : prowler;
+    // Only 5% chance of getting tired, and only if NOT in egg stages
+    if (currentData.stage !== 'egg' && currentData.stage !== 'cracked_egg' && Math.random() < 0.05) {
+                tiredUntil = Date.now() + 60000;
                 customAlert(`${currentEgg === 'lintel' ? 'Lintel' : 'Prowler'} got into a fight with a sprite and is tired! Give them some rest!`);
                 return;
             }
@@ -1944,3 +1949,4 @@ loadAllImages().then(() => {
 </script>
 </body>
 </html>
+
