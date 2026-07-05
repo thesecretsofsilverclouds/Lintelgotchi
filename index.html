@@ -17,7 +17,7 @@
             background-color: #e6f7ff;
         }
         #game-container, #tower-defense-container {
-            background: url('images/background.png') no-repeat center center;
+            background: url('images/art/background_v2.png') no-repeat center center;
             background-size: cover;
             border-radius: 20px;
             padding: 20px;
@@ -102,12 +102,40 @@
         }
         #food-bar .stat-fill { background-color: #76c7c0; }
         #water-bar .stat-fill { background-color: #3498db; }
+        #mood-bar .stat-fill { background-color: #e91e63; }
         #exp-bar .stat-fill { background-color: #f1c40f; }
         #growth-bar .stat-fill { background-color: #9b59b6; }
         .action-buttons {
             display: flex;
             justify-content: space-around;
             margin-top: 20px;
+        }
+        .action-buttons button {
+            position: relative;
+        }
+        .action-buttons button::after {
+            content: attr(data-label);
+            position: absolute;
+            bottom: calc(100% + 8px);
+            left: 50%;
+            transform: translateX(-50%) scale(0.9);
+            background: rgba(17, 32, 55, 0.92);
+            color: #fff;
+            padding: 4px 10px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            font-size: 12px;
+            font-weight: bold;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.15s, transform 0.15s;
+            z-index: 20;
+        }
+        .action-buttons button:hover::after,
+        .action-buttons button:focus-visible::after {
+            opacity: 1;
+            transform: translateX(-50%) scale(1);
         }
         button {
             padding: 5px 10px;
@@ -154,13 +182,14 @@
         #mini-game {
             width: 100%;
             height: 300px;
-            background: url('images/universe_background.png') no-repeat center center;
+            background: url('images/art/universe_background_v2.png') no-repeat center center;
             background-size: cover;
             position: relative;
             overflow: hidden;
             display: none;
             border-radius: 10px;
             box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+            touch-action: none;
         }
         .falling-item {
             position: absolute;
@@ -191,41 +220,95 @@
             text-align: center;
             margin: 0 20px;
         }
-        #cosmetics-container {
-            display: none;
+        #pet-image {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            z-index: 1;
+            pointer-events: none;
+            user-select: none;
+            -webkit-user-drag: none;
+        }
+        .cosmetic-layer {
+            position: absolute;
+            z-index: 2;
+            pointer-events: none;
+            user-select: none;
+            -webkit-user-drag: none;
+            touch-action: none;
+        }
+        .cosmetic-layer.aura {
+            z-index: 0;
+        }
+        .dress-up-active #lintel-display {
+            touch-action: none;
+            cursor: grab;
+            box-shadow: 0 0 20px rgba(255, 230, 109, 0.8);
+        }
+        #wardrobe {
+            background: rgba(17, 32, 55, 0.75);
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            border-radius: 14px;
+            padding: 12px;
+            margin-top: 12px;
             text-align: center;
-            margin-top: 20px;
         }
-        #cosmetics-list {
+        #wardrobe-header {
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        #wardrobe-hint {
+            font-size: 12px;
+            font-weight: normal;
+            color: rgba(255, 255, 255, 0.8);
+            margin-top: 4px;
+        }
+        #wardrobe-grid {
             display: flex;
-            justify-content: center;
             flex-wrap: wrap;
+            justify-content: center;
+            gap: 8px;
+            margin: 8px 0;
         }
-        .cosmetic-item {
-            margin: 10px;
+        .wardrobe-item {
+            width: 66px;
             cursor: pointer;
+            text-align: center;
+            background: rgba(0, 0, 0, 0.35);
+            border-radius: 10px;
+            padding: 6px 4px;
+            border: 2px solid transparent;
         }
-        .cosmetic-item span {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            margin-right: 5px;
-            vertical-align: middle;
+        .wardrobe-item img {
+            width: 44px;
+            height: 44px;
+            object-fit: contain;
         }
-        #lintel-preview {
-            width: 100px;
-            height: 100px;
-            margin: 0 auto;
-            background-size: contain;
-            background-repeat: no-repeat;
-            background-position: center;
-            border-radius: 50%;
-            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+        .wardrobe-item span {
+            display: block;
+            font-size: 10px;
+            color: #fff;
+        }
+        .wardrobe-item.equipped {
+            border-color: #ffe66d;
+        }
+        .wardrobe-item.locked {
+            cursor: default;
+        }
+        .wardrobe-item.locked img {
+            filter: brightness(0);
+            opacity: 0.45;
         }
         /* Tower Defense Styles */
         #tower-defense-canvas {
             border: 2px solid #333;
             background-color: #fff;
+            width: 100%;
+            height: auto;
+            border-radius: 10px;
+            display: block;
         }
         #tower-defense-ui {
             margin-top: 10px;
@@ -280,6 +363,33 @@
 .tower-menu button:hover {
     background-color: #eee;
 }
+        #music-toggle {
+            position: fixed;
+            top: max(12px, env(safe-area-inset-top));
+            right: max(12px, env(safe-area-inset-right));
+            z-index: 100;
+            min-width: 96px;
+            min-height: 44px;
+            padding: 8px 12px;
+            background-color: rgba(17, 32, 55, 0.86);
+            border: 1px solid rgba(255, 255, 255, 0.55);
+            border-radius: 18px;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+            color: #fff;
+            font-weight: bold;
+            touch-action: manipulation;
+        }
+        #music-toggle:hover {
+            background-color: rgba(35, 84, 132, 0.95);
+        }
+        @media (max-width: 480px) {
+            #music-toggle {
+                right: max(8px, env(safe-area-inset-right));
+                min-width: 88px;
+                padding: 7px 10px;
+                font-size: 13px;
+            }
+        }
         #tower-controls {
             position: absolute;
             top: 10px;
@@ -287,22 +397,269 @@
             z-index: 10;
             display: none;
         }
-    </style>
+        #lintel-display {
+            position: relative;
+        }
+        #growth-hint {
+            text-align: center;
+            font-size: 14px;
+            color: #f3ecff;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7);
+            margin: 4px 0 0 0;
+        }
+        #trait-line {
+            text-align: center;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.85);
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7);
+            margin: 3px 0 0 0;
+        }
+        #toast-container {
+            position: fixed;
+            top: 16px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            pointer-events: none;
+            width: min(90vw, 420px);
+        }
+        .toast {
+            background: rgba(17, 32, 55, 0.92);
+            color: #fff;
+            padding: 10px 18px;
+            border-radius: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+            font-weight: bold;
+            text-align: center;
+            animation: toast-in 0.3s ease-out;
+        }
+        .toast.toast-hide {
+            animation: toast-out 0.4s ease-in forwards;
+        }
+        @keyframes toast-in {
+            from { opacity: 0; transform: translateY(-12px); }
+            to { opacity: 1; transform: none; }
+        }
+        @keyframes toast-out {
+            to { opacity: 0; transform: translateY(-8px); }
+        }
+        #modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(10, 18, 34, 0.6);
+            z-index: 900;
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-card {
+            background: linear-gradient(160deg, rgba(30, 52, 90, 0.97), rgba(60, 38, 100, 0.97));
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            border-radius: 18px;
+            padding: 24px 32px;
+            text-align: center;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+            max-width: min(90vw, 360px);
+            animation: modal-pop 0.35s ease-out;
+        }
+        .modal-card h2 {
+            margin-top: 0;
+            font-family: 'Pacifico', cursive;
+            text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.7);
+        }
+        .modal-card input {
+            padding: 8px 12px;
+            font-size: 16px;
+            border: none;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 10px;
+            width: 80%;
+        }
+        .modal-card textarea {
+            width: 100%;
+            box-sizing: border-box;
+            background: rgba(0, 0, 0, 0.4);
+            color: #cfe8ff;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            padding: 8px;
+            font-family: monospace;
+            font-size: 11px;
+            word-break: break-all;
+            resize: none;
+        }
+        #tutorial-dots {
+            margin: 10px 0;
+            font-size: 14px;
+            letter-spacing: 4px;
+        }
+        #book-dialog {
+            max-width: min(92vw, 480px);
+        }
+        #book-tabs button.active-tab {
+            background-color: rgba(255, 230, 109, 0.85);
+            color: #223;
+        }
+        #book-content {
+            max-height: 45vh;
+            overflow-y: auto;
+            text-align: left;
+            margin: 10px 0;
+            padding-right: 4px;
+        }
+        .book-count {
+            text-align: center;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.75);
+            margin-bottom: 8px;
+        }
+        .book-entry {
+            margin: 8px 0;
+            font-size: 14px;
+        }
+        .book-entry.locked {
+            opacity: 0.55;
+        }
+        .book-entry.goal-done {
+            color: #9df7b0;
+        }
+        .fragment-text {
+            font-style: italic;
+            font-size: 13px;
+            color: #e8dcff;
+            margin-top: 2px;
+        }
+        .book-hint {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.6);
+            margin-top: 2px;
+        }
+        @keyframes modal-pop {
+            from { opacity: 0; transform: scale(0.85); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        .reward-row {
+            font-size: 18px;
+            font-weight: bold;
+            margin: 8px 0;
+            opacity: 0;
+            animation: reward-pop 0.4s ease-out forwards;
+        }
+        @keyframes reward-pop {
+            from { opacity: 0; transform: translateY(10px) scale(0.8); }
+            to { opacity: 1; transform: none; }
+        }
+        .floating-text {
+            position: absolute;
+            left: 50%;
+            top: 20%;
+            font-size: 22px;
+            font-weight: bold;
+            text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+            pointer-events: none;
+            white-space: nowrap;
+            animation: float-up 1.2s ease-out forwards;
+            z-index: 5;
+        }
+        @keyframes float-up {
+            0% { opacity: 0; transform: translate(-50%, 0) scale(0.8); }
+            15% { opacity: 1; transform: translate(-50%, -8px) scale(1.1); }
+            100% { opacity: 0; transform: translate(-50%, -60px) scale(1); }
+        }
+        @keyframes happy {
+            0%, 100% { transform: scale(1); }
+            30% { transform: scale(1.12) rotate(-3deg); }
+            60% { transform: scale(1.05) rotate(3deg); }
+        }
+        .animate-happy {
+            animation: happy 0.6s ease-in-out;
+        }
+        @keyframes level-glow {
+            0%, 100% { box-shadow: 0 0 15px rgba(0, 0, 0, 0.2); }
+            50% { box-shadow: 0 0 40px 10px rgba(241, 196, 15, 0.9); }
+        }
+        .animate-level {
+            animation: level-glow 1s ease-in-out;
+        }
+        @keyframes stage-change {
+            0% { transform: scale(0.6); filter: brightness(3); opacity: 0.2; }
+            60% { transform: scale(1.15); filter: brightness(1.6); opacity: 1; }
+            100% { transform: scale(1); filter: brightness(1); }
+        }
+        .animate-stage {
+            animation: stage-change 1.2s ease-out;
+        }
+        #gather-hud {
+            position: absolute;
+            top: 6px;
+            left: 10px;
+            right: 10px;
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            font-weight: bold;
+            color: #fff;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
+            z-index: 3;
+            pointer-events: none;
+        }
+        #gather-combo {
+            color: #f1c40f;
+        }
+        .powerup-item {
+            background: rgba(255, 255, 255, 0.25);
+            border: 2px solid rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+            box-shadow: 0 0 12px rgba(255, 255, 255, 0.9);
+        }
+        .gather-popup {
+            position: absolute;
+            bottom: 50px;
+            font-size: 15px;
+            font-weight: bold;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
+            pointer-events: none;
+            white-space: nowrap;
+            animation: gather-pop 0.9s ease-out forwards;
+            z-index: 4;
+        }
+        @keyframes gather-pop {
+            0% { opacity: 0; transform: translateY(0); }
+            20% { opacity: 1; }
+            100% { opacity: 0; transform: translateY(-40px); }
+        }
+        @keyframes gather-shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-6px); }
+            75% { transform: translateX(6px); }
+        }
+        .gather-shake {
+            animation: gather-shake 0.4s ease-in-out;
+        }
+</style>
 </head>
 <body>
+    <button id="music-toggle" type="button" aria-pressed="false" onclick="toggleMusic(event)" title="Turn music off">Music On</button>
     <div id="egg-selection-container" style="display: none;">
         <h1>Choose your egg</h1>
         <div onclick="selectEgg('lintel')">
-            <img src="images/lintel_egg.png" alt="Lintel Egg">
+            <img src="images/art/lintel_egg_v2.png" alt="Lintel Egg">
             <p>Lintel Egg</p>
         </div>
         <div onclick="selectEgg('prowler')">
-            <img src="images/prowler_egg.png" alt="Prowler Egg">
+            <img src="images/art/prowler_egg_v2.png" alt="Prowler Egg">
             <p>Prowler Egg</p>
         </div>
     </div>
     <div id="game-container">
-        <div id="lintel-display"></div>
+        <div id="lintel-display"><img id="pet-image" alt="Your pet"></div>
         <div id="stats"><span id="lintel-name"></span> | Level: <span id="level">1</span> | Stage: <span id="stage">Egg</span></div>
         <div class="stat-bar" id="food-bar">
             <div class="stat-fill"></div>
@@ -312,6 +669,10 @@
             <div class="stat-fill"></div>
             <div class="stat-label">Water</div>
         </div>
+        <div class="stat-bar" id="mood-bar">
+            <div class="stat-fill"></div>
+            <div class="stat-label">Mood</div>
+        </div>
         <div class="stat-bar" id="exp-bar">
             <div class="stat-fill"></div>
             <div class="stat-label">EXP</div>
@@ -320,33 +681,52 @@
             <div class="stat-fill"></div>
             <div class="stat-label">Growth</div>
         </div>
+        <div id="growth-hint"></div>
+        <div id="trait-line"></div>
         <div id="resources">
             <div class="resource"><span class="resource-icon">🍎</span> <span id="food-count">5</span></div>
             <div class="resource"><span class="resource-icon">💧</span> <span id="water-count">5</span></div>
             <div class="resource"><span class="resource-icon">⭐</span> <span id="rare-item-count">0</span></div>
         </div>
         <div class="action-buttons">
-            <button onclick="handleButtonClick('feed')">
-                <img src="images/feed_icon.png" alt="Feed">
+            <button onclick="handleButtonClick('feed')" data-label="Feed your pet" title="Feed your pet" aria-label="Feed your pet">
+                <img src="images/art/feed_icon_v2.png" alt="Feed">
             </button>
-            <button onclick="handleButtonClick('water')">
-                <img src="images/water_icon.png" alt="Water">
+            <button onclick="handleButtonClick('water')" data-label="Give water" title="Give water" aria-label="Give water">
+                <img src="images/art/water_icon_v2.png" alt="Water">
             </button>
-            <button onclick="handleButtonClick('startGatheringGame')">
-                <img src="images/gather_icon.png" alt="Gather">
+            <button onclick="handleButtonClick('startGatheringGame')" data-label="Gather food &amp; water" title="Gather food & water" aria-label="Gather food and water">
+                <img src="images/art/gather_icon_v2.png" alt="Gather">
             </button>
-            <button onclick="handleButtonClick('adventure')">
-                <img src="images/adventure_icon.png" alt="Adventure">
+            <button onclick="handleButtonClick('adventure')" data-label="Adventure: tower defense" title="Adventure: tower defense" aria-label="Adventure: tower defense">
+                <img src="images/art/adventure_icon_v2.png" alt="Adventure">
             </button>
-            <button onclick="handleButtonClick('useRareItem')">
-                <img src="images/level_boost_icon.png" alt="Use Level Boost">
+            <button onclick="handleButtonClick('useRareItem')" data-label="Use ⭐ for bonus XP" title="Use a rare star for bonus XP" aria-label="Use a rare star for bonus XP">
+                <img src="images/art/level_boost_icon_v2.png" alt="Use Level Boost">
             </button>
         </div>
         <div id="mini-game">
+            <div id="gather-hud">
+                <span id="gather-score">Score: 0</span>
+                <span id="gather-powerups"></span>
+                <span id="gather-combo"></span>
+                <span id="gather-timer"></span>
+            </div>
             <div id="basket"></div>
         </div>
         <button id="switch-egg-button" onclick="switchEgg()">Switch Egg</button>
-        <button id="cosmetics-button" style="display: none;" onclick="toggleCosmetics()">Cosmetics</button>
+        <button id="dress-up-button" onclick="toggleDressUp()">🎩 Dress Up</button>
+        <button id="book-button" onclick="openBook()">📖 Book</button>
+        <button id="save-button" onclick="openSaveDialog()">💾 Save</button>
+        <button id="help-button" onclick="startTutorial()">❓ Help</button>
+        <div id="wardrobe" style="display: none;">
+            <div id="wardrobe-header">
+                <span id="wardrobe-count"></span>
+                <div id="wardrobe-hint">Tap an item to wear it. Drag it on your pet to place it, pinch or scroll to resize, twist or Shift+scroll to tilt.</div>
+            </div>
+            <div id="wardrobe-grid"></div>
+            <button onclick="toggleDressUp()">Done</button>
+        </div>
         <audio id="lintel-click-egg-sound" src="sounds/lintel_click_egg.mp3"></audio>
         <audio id="lintel-click-cracked-egg-sound" src="sounds/lintel_click_cracked_egg.mp3"></audio>
         <audio id="lintel-click-baby-sound" src="sounds/lintel_click_baby.mp3"></audio>
@@ -360,7 +740,7 @@
         <audio id="button-sound" src="sounds/button_click.mp3"></audio>
         <audio id="star-sound" src="sounds/star_capture.mp3"></audio>
         <audio id="present-sound" src="sounds/present_capture.mp3"></audio>
-        <audio id="background-music" src="sounds/background_music.mp3" loop autoplay></audio>
+        <audio id="background-music" src="sounds/background_music.mp3" loop></audio>
     </div>
     <div id="tower-defense-container">
         <canvas id="tower-defense-canvas" width="800" height="600"></canvas>
@@ -375,36 +755,74 @@
                 <div id="td-presence-display">Presence: 200</div>
                 <div id="td-wave-display">Wave: 0</div>
                 <div id="td-health-display">Health: 100</div>
+                <div id="td-status-display"></div>
             </div>
             <button id="td-exit-button">Exit Game</button>
         </div>
         <div id="td-context-menu" class="tower-menu"></div>
     </div>
 
-    <div id="cosmetics-container">
-        <h2>Cosmetics</h2>
-        <div id="lintel-preview"></div>
-        <div id="cosmetics-list"></div>
-        <button onclick="applyCosmetic()">Apply Cosmetic</button>
-        <button onclick="removeCosmetic()">Remove Cosmetic</button>
-        <button onclick="toggleCosmetics()">Close</button>
+    <div id="toast-container"></div>
+    <div id="modal-overlay">
+        <div id="reward-screen" class="modal-card" style="display: none;">
+            <h2 id="reward-title"></h2>
+            <div id="reward-list"></div>
+            <button onclick="closeRewardScreen()">Collect!</button>
+        </div>
+        <div id="name-dialog" class="modal-card" style="display: none;">
+            <h2>Your creature hatched! 🎉</h2>
+            <p>Give your new baby a name:</p>
+            <input id="name-input" type="text" maxlength="20" placeholder="Name">
+            <br>
+            <button onclick="confirmName()">Name it!</button>
+        </div>
+        <div id="tutorial-dialog" class="modal-card" style="display: none;">
+            <h2 id="tutorial-title"></h2>
+            <p id="tutorial-text"></p>
+            <div id="tutorial-dots"></div>
+            <button id="tutorial-next" onclick="tutorialNext()">Next</button>
+            <button onclick="endTutorial()">Skip</button>
+        </div>
+        <div id="book-dialog" class="modal-card" style="display: none;">
+            <h2>📖 Collection Book</h2>
+            <div id="book-tabs">
+                <button data-tab="story" onclick="renderBook('story')">📜 Story</button>
+                <button data-tab="achievements" onclick="renderBook('achievements')">🏆 Feats</button>
+                <button data-tab="daily" onclick="renderBook('daily')">✅ Daily</button>
+            </div>
+            <div id="book-content"></div>
+            <button onclick="closeRewardScreen()">Close</button>
+        </div>
+        <div id="save-dialog" class="modal-card" style="display: none;">
+            <h2>💾 Save Data</h2>
+            <p>Copy this code somewhere safe — or paste a code below and load it.</p>
+            <textarea id="save-code" rows="4" spellcheck="false"></textarea>
+            <div>
+                <button onclick="copySaveCode()">Copy code</button>
+                <button onclick="importSaveCode(document.getElementById('save-code').value)">Load code</button>
+            </div>
+            <div>
+                <button id="reset-save-button" onclick="resetSave()">Reset save</button>
+                <button onclick="closeRewardScreen()">Close</button>
+            </div>
+        </div>
     </div>
 
     <script>
         const lintelImages = {
-            egg: 'images/lintel_egg.png',
-            cracked_egg: 'images/lintel_cracked_egg.png',
-            baby: 'images/lintel_baby.png',
-            teen: 'images/lintel_teen.png',
-            adult: 'images/lintel_adult.png'
+            egg: 'images/art/lintel_egg_v2.png',
+            cracked_egg: 'images/art/lintel_cracked_egg_v2.png',
+            baby: 'images/art/lintel_baby_v2.png',
+            teen: 'images/art/lintel_teen_v2.png',
+            adult: 'images/art/lintel_adult_v2.png'
         };
 
         const prowlerImages = {
-            egg: 'images/prowler_egg.png',
-            cracked_egg: 'images/prowler_cracked_egg.png',
-            baby: 'images/prowler_baby.png',
-            teen: 'images/prowler_teen.png',
-            adult: 'images/prowler_adult.png'
+            egg: 'images/art/prowler_egg_v2.png',
+            cracked_egg: 'images/art/prowler_cracked_egg_v2.png',
+            baby: 'images/art/prowler_baby_v2.png',
+            teen: 'images/art/prowler_teen_v2.png',
+            adult: 'images/art/prowler_adult_v2.png'
         };
 
         const clickSounds = {
@@ -424,13 +842,28 @@
             }
         };
 
-        const cosmeticFilters = {
-            red: 'brightness(0.8) sepia(1) saturate(3) hue-rotate(-50deg)',
-            blue: 'brightness(0.8) sepia(1) saturate(3) hue-rotate(180deg)',
-            green: 'brightness(0.8) sepia(1) saturate(3) hue-rotate(90deg)',
-            yellow: 'brightness(1.2) sepia(1) saturate(3) hue-rotate(30deg)',
-            purple: 'brightness(0.8) sepia(1) saturate(3) hue-rotate(270deg)',
-            none: 'none'
+        const cosmeticCatalog = {
+            wizard_hat: { name: 'Wizard Hat', cat: 'hat' },
+            cloud_cap: { name: 'Cloud Cap', cat: 'hat' },
+            star_crown: { name: 'Star Crown', cat: 'hat' },
+            flower_wreath: { name: 'Flower Wreath', cat: 'hat' },
+            moon_halo: { name: 'Moon Halo', cat: 'hat' },
+            gold_spectacles: { name: 'Gold Spectacles', cat: 'face' },
+            bell_necklace: { name: 'Bell Necklace', cat: 'neck' },
+            blue_silk_scarf: { name: 'Blue Silk Scarf', cat: 'neck' },
+            leaf_collar: { name: 'Leaf Collar', cat: 'neck' },
+            tiny_cape: { name: 'Tiny Cape', cat: 'neck' },
+            cloud_satchel: { name: 'Cloud Satchel', cat: 'accessory' },
+            snowflake_aura: { name: 'Snowflake Aura', cat: 'aura' },
+            sparkle_aura: { name: 'Sparkle Aura', cat: 'aura' }
+        };
+
+        const cosmeticAnchors = {
+            hat: { x: 50, y: 12, scale: 0.9, rot: 0 },
+            face: { x: 50, y: 40, scale: 0.65, rot: 0 },
+            neck: { x: 50, y: 64, scale: 0.8, rot: 0 },
+            accessory: { x: 74, y: 66, scale: 0.6, rot: 0 },
+            aura: { x: 50, y: 50, scale: 1.9, rot: 0 }
         };
 
         let lintel = {
@@ -438,6 +871,7 @@
             level: 1,
             food: 50,
             water: 50,
+            mood: 70,
             exp: 0,
             maxExp: 100,
             growthProgress: 0,
@@ -452,6 +886,7 @@
             level: 1,
             food: 50,
             water: 50,
+            mood: 70,
             exp: 0,
             maxExp: 100,
             growthProgress: 0,
@@ -460,6 +895,25 @@
             cosmetics: [],
             selectedCosmetic: ''
         };
+
+        function getMood(data) {
+            return typeof data.mood === 'number' ? data.mood : 70;
+        }
+
+        function addMood(amount) {
+            const currentData = currentEgg === 'lintel' ? lintel : prowler;
+            currentData.mood = Math.max(0, Math.min(100, getMood(currentData) + amount));
+            if (amount > 0 && typeof bumpDaily === 'function') {
+                if (currentData.mood >= 100) award('blissful');
+                if (currentData.mood >= 80) bumpDaily('mood80');
+            }
+            updateDisplay();
+        }
+
+        function isHappy() {
+            const currentData = currentEgg === 'lintel' ? lintel : prowler;
+            return getMood(currentData) >= 70;
+        }
 
         let currentEgg = 'lintel';
         let resources = {
@@ -470,7 +924,8 @@
 
         let tiredUntil = 0;
         let gatherCount = 0;
-        let selectedCosmetic = '';
+        const MUSIC_SETTING_KEY = 'lintelgotchiMusicEnabled';
+        let musicEnabled = localStorage.getItem(MUSIC_SETTING_KEY) !== 'false';
 
         document.addEventListener('DOMContentLoaded', () => {
             const selectedEgg = localStorage.getItem('selectedEgg');
@@ -479,6 +934,9 @@
                 updateEggData();
                 document.getElementById('egg-selection-container').style.display = 'none';
                 document.getElementById('game-container').style.display = 'block';
+                if (!localStorage.getItem(TUTORIAL_SEEN_KEY)) {
+                    startTutorial();
+                }
             } else {
                 document.getElementById('egg-selection-container').style.display = 'block';
                 document.getElementById('game-container').style.display = 'none';
@@ -487,36 +945,106 @@
             const lintelDisplay = document.getElementById('lintel-display');
             lintelDisplay.classList.add('animate-hover');
 
-            lintelDisplay.addEventListener('click', () => {
-                playSound(clickSounds[currentEgg][currentEgg === 'lintel' ? lintel.stage : prowler.stage]);
-                const animations = ['animate-jump', 'animate-flip', 'animate-dance'];
-                const randomAnimation = animations[Math.floor(Math.random() * animations.length)];
-                addAnimationClass(randomAnimation);
-                saveGame();
-            });
-
-            lintelDisplay.addEventListener('touchstart', () => {
-                playSound(clickSounds[currentEgg][currentEgg === 'lintel' ? lintel.stage : prowler.stage]);
-                const animations = ['animate-jump', 'animate-flip', 'animate-dance'];
-                const randomAnimation = animations[Math.floor(Math.random() * animations.length)];
-                addAnimationClass(randomAnimation);
-                saveGame();
-            });
+            lintelDisplay.addEventListener('click', petCreature);
+            lintelDisplay.addEventListener('touchstart', petCreature);
+            lintelDisplay.addEventListener('pointerdown', dressPointerDown);
+            lintelDisplay.addEventListener('pointermove', dressPointerMove);
+            lintelDisplay.addEventListener('pointerup', dressPointerEnd);
+            lintelDisplay.addEventListener('pointercancel', dressPointerEnd);
+            lintelDisplay.addEventListener('wheel', dressWheel, { passive: false });
 
             loadGame();
+            loadMeta();
+            ensureDaily();
+            // Existing saves get any growth gifts they've already earned
+            const backGifts = grantStageCosmetics(lintel, false) + grantStageCosmetics(prowler, false);
+            if (backGifts > 0) {
+                customAlert('🎁 New cosmetics await — tap Dress Up!');
+            }
             updateDisplay();
 
             document.getElementById('rare-item-count').innerText = resources.rareItem;
             const backgroundMusic = document.getElementById('background-music');
-            backgroundMusic.play();
             backgroundMusic.volume = 0.3;
+            backgroundMusic.muted = !musicEnabled;
+            updateMusicToggle();
+            if (musicEnabled) {
+                playBackgroundMusic();
+            }
 
             document.body.addEventListener('click', () => {
-                if (backgroundMusic.paused) {
-                    backgroundMusic.play();
+                if (musicEnabled && backgroundMusic.paused) {
+                    playBackgroundMusic();
                 }
             });
         });
+
+        let lastPetTime = 0;
+
+        function petCreature() {
+            if (dressUpMode) return;
+            const currentData = currentEgg === 'lintel' ? lintel : prowler;
+            playSound(clickSounds[currentEgg][currentData.stage]);
+            const animations = ['animate-jump', 'animate-flip', 'animate-dance'];
+            addAnimationClass(animations[Math.floor(Math.random() * animations.length)]);
+
+            const now = Date.now();
+            if (now - lastPetTime > 3000 && currentData.stage !== 'egg' && currentData.stage !== 'cracked_egg') {
+                lastPetTime = now;
+                // Baby ability "Adorable": petting cheers double
+                const gain = currentData.stage === 'baby' ? 4 : 2;
+                addMood(gain);
+                spawnFloatingText('💗', '#ff8fb3');
+                bumpDaily('pet');
+            }
+            saveGame();
+        }
+
+        function updateMusicToggle() {
+            const musicToggle = document.getElementById('music-toggle');
+            if (!musicToggle) {
+                return;
+            }
+
+            musicToggle.textContent = musicEnabled ? 'Music On' : 'Music Off';
+            musicToggle.title = musicEnabled ? 'Turn music off' : 'Turn music on';
+            musicToggle.setAttribute('aria-pressed', String(musicEnabled));
+        }
+
+        function playBackgroundMusic() {
+            const backgroundMusic = document.getElementById('background-music');
+            if (!backgroundMusic || !musicEnabled) {
+                return;
+            }
+
+            backgroundMusic.volume = 0.3;
+            backgroundMusic.muted = false;
+            const playPromise = backgroundMusic.play();
+            if (playPromise && typeof playPromise.catch === 'function') {
+                playPromise.catch(() => {});
+            }
+        }
+
+        function toggleMusic(event) {
+            if (event) {
+                event.stopPropagation();
+            }
+
+            musicEnabled = !musicEnabled;
+            localStorage.setItem(MUSIC_SETTING_KEY, String(musicEnabled));
+
+            const backgroundMusic = document.getElementById('background-music');
+            if (backgroundMusic) {
+                backgroundMusic.muted = !musicEnabled;
+                if (musicEnabled) {
+                    playBackgroundMusic();
+                } else {
+                    backgroundMusic.pause();
+                }
+            }
+
+            updateMusicToggle();
+        }
 
         function selectEgg(egg) {
             currentEgg = egg;
@@ -525,71 +1053,463 @@
         }
 
         function switchEgg() {
+            if (dressUpMode) {
+                toggleDressUp();
+            }
             currentEgg = currentEgg === 'lintel' ? 'prowler' : 'lintel';
             updateEggData();
             updateDisplay();
         }
 
-        function toggleCosmetics() {
-            const cosmeticsContainer = document.getElementById('cosmetics-container');
-            cosmeticsContainer.style.display = cosmeticsContainer.style.display === 'none' ? 'block' : 'none';
-            if (cosmeticsContainer.style.display === 'block') {
-                populateCosmeticsList();
-                updatePreview();
+        let dressUpMode = false;
+        let cosmeticDrag = null;
+
+        function currentPet() {
+            return currentEgg === 'lintel' ? lintel : prowler;
+        }
+
+        function ownedCosmetics(data) {
+            if (!Array.isArray(data.cosmetics)) {
+                data.cosmetics = [];
+            }
+            return data.cosmetics;
+        }
+
+        function currentLook(data) {
+            if (!data.cosmeticLayouts) data.cosmeticLayouts = {};
+            if (!data.cosmeticLayouts[data.stage]) data.cosmeticLayouts[data.stage] = {};
+            return data.cosmeticLayouts[data.stage];
+        }
+
+        function toggleDressUp() {
+            const data = currentPet();
+            if (data.stage === 'egg' || data.stage === 'cracked_egg') {
+                customAlert('🥚 Hatch your creature first, then dress it up!');
+                return;
+            }
+            dressUpMode = !dressUpMode;
+            document.getElementById('wardrobe').style.display = dressUpMode ? 'block' : 'none';
+            document.getElementById('game-container').classList.toggle('dress-up-active', dressUpMode);
+            if (dressUpMode) {
+                renderWardrobeGrid();
+            }
+            updateDisplay();
+            saveGame();
+        }
+
+        function toggleEquip(id) {
+            const data = currentPet();
+            const look = currentLook(data);
+            if (look[id]) {
+                delete look[id];
+            } else {
+                // One item per category: unequip anything sharing the slot
+                for (const other of Object.keys(look)) {
+                    if (cosmeticCatalog[other] && cosmeticCatalog[other].cat === cosmeticCatalog[id].cat) {
+                        delete look[other];
+                    }
+                }
+                look[id] = { ...cosmeticAnchors[cosmeticCatalog[id].cat] };
+                if (Object.keys(look).length >= 3) {
+                    award('stylist');
+                }
+            }
+            updateDisplay();
+            renderWardrobeGrid();
+            saveGame();
+        }
+
+        function renderWardrobeGrid() {
+            const grid = document.getElementById('wardrobe-grid');
+            grid.innerHTML = '';
+            const data = currentPet();
+            const owned = ownedCosmetics(data);
+            const look = currentLook(data);
+            for (const [id, def] of Object.entries(cosmeticCatalog)) {
+                const cell = document.createElement('div');
+                cell.className = 'wardrobe-item';
+                const img = document.createElement('img');
+                img.src = `images/cosmetics/${id}.png`;
+                img.draggable = false;
+                cell.appendChild(img);
+                const label = document.createElement('span');
+                if (owned.includes(id)) {
+                    label.textContent = def.name;
+                    if (look[id]) {
+                        cell.classList.add('equipped');
+                    }
+                    cell.onclick = () => toggleEquip(id);
+                } else {
+                    cell.classList.add('locked');
+                    label.textContent = '???';
+                }
+                cell.appendChild(label);
+                grid.appendChild(cell);
+            }
+            document.getElementById('wardrobe-count').textContent = `👒 ${owned.length}/${Object.keys(cosmeticCatalog).length} collected`;
+        }
+
+        function applyLayerTransform(el, t) {
+            el.style.left = t.x + '%';
+            el.style.top = t.y + '%';
+            el.style.width = (t.scale * 50) + '%';
+            el.style.transform = `translate(-50%, -50%) rotate(${t.rot}deg)`;
+        }
+
+        function renderCosmeticLayers(data) {
+            if (cosmeticDrag) return; // don't rebuild layers mid-drag
+            const display = document.getElementById('lintel-display');
+            display.querySelectorAll('.cosmetic-layer').forEach(el => el.remove());
+            const look = (data.cosmeticLayouts || {})[data.stage] || {};
+            for (const [id, t] of Object.entries(look)) {
+                if (!cosmeticCatalog[id]) continue;
+                const img = document.createElement('img');
+                img.className = 'cosmetic-layer' + (cosmeticCatalog[id].cat === 'aura' ? ' aura' : '');
+                img.src = `images/cosmetics/${id}.png`;
+                img.dataset.itemId = id;
+                img.draggable = false;
+                applyLayerTransform(img, t);
+                display.appendChild(img);
             }
         }
 
-        function populateCosmeticsList() {
-            const cosmeticsList = document.getElementById('cosmetics-list');
-            cosmeticsList.innerHTML = '';
-            const currentData = currentEgg === 'lintel' ? lintel : prowler;
+        function gestureStart() {
+            const t = currentLook(currentPet())[cosmeticDrag.id];
+            cosmeticDrag.start = {
+                t: { ...t },
+                pts: [...cosmeticDrag.pointers.values()].map(p => ({ ...p }))
+            };
+        }
 
-            currentData.cosmetics.forEach(cosmetic => {
-                const cosmeticItem = document.createElement('div');
-                cosmeticItem.className = 'cosmetic-item';
-                cosmeticItem.onclick = () => previewCosmetic(cosmetic);
+        function dressLayerEl(id) {
+            return document.querySelector(`.cosmetic-layer[data-item-id="${id}"]`);
+        }
 
-                const colorBox = document.createElement('span');
-                colorBox.style.backgroundColor = getColorForCosmetic(cosmetic);
-
-                cosmeticItem.appendChild(colorBox);
-                cosmeticItem.appendChild(document.createTextNode(cosmetic.charAt(0).toUpperCase() + cosmetic.slice(1)));
-
-                cosmeticsList.appendChild(cosmeticItem);
+        // Find the equipped item under the cursor; prefer the smallest hit-box so
+        // big transparent auras don't swallow grabs aimed at hats and scarves
+        function dressItemAt(clientX, clientY) {
+            let best = null;
+            document.querySelectorAll('.cosmetic-layer').forEach(el => {
+                const r = el.getBoundingClientRect();
+                if (clientX >= r.left && clientX <= r.right && clientY >= r.top && clientY <= r.bottom) {
+                    const area = r.width * r.height;
+                    if (!best || area < best.area) {
+                        best = { id: el.dataset.itemId, area };
+                    }
+                }
             });
+            return best ? best.id : null;
         }
 
-        function updatePreview() {
-            const preview = document.getElementById('lintel-preview');
-            const currentData = currentEgg === 'lintel' ? lintel : prowler;
-            const images = currentEgg === 'lintel' ? lintelImages : prowlerImages;
-            
-            preview.style.backgroundImage = `url(${images[currentData.stage]})`;
-            preview.style.filter = cosmeticFilters[currentData.selectedCosmetic] || 'none';
+        function dressPointerDown(e) {
+            if (!dressUpMode) return;
+            if (!cosmeticDrag) {
+                const id = dressItemAt(e.clientX, e.clientY);
+                if (!id) return;
+                cosmeticDrag = { id, pointers: new Map() };
+            }
+            e.preventDefault();
+            try { e.currentTarget.setPointerCapture(e.pointerId); } catch (err) { /* pointer already released */ }
+            cosmeticDrag.pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+            gestureStart();
         }
 
-        function previewCosmetic(cosmetic) {
-            selectedCosmetic = cosmetic;
-            const preview = document.getElementById('lintel-preview');
-            preview.style.filter = cosmeticFilters[cosmetic] || 'none';
+        function dressPointerMove(e) {
+            if (!dressUpMode || !cosmeticDrag || !cosmeticDrag.pointers.has(e.pointerId)) return;
+            e.preventDefault();
+            cosmeticDrag.pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+            const rect = document.getElementById('lintel-display').getBoundingClientRect();
+            const t = currentLook(currentPet())[cosmeticDrag.id];
+            if (!t) return;
+            const { start } = cosmeticDrag;
+            const pts = [...cosmeticDrag.pointers.values()];
+            const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+            if (pts.length === 1) {
+                // One finger / mouse: move
+                t.x = clamp(start.t.x + (pts[0].x - start.pts[0].x) / rect.width * 100, -20, 120);
+                t.y = clamp(start.t.y + (pts[0].y - start.pts[0].y) / rect.height * 100, -20, 120);
+            } else {
+                // Two fingers: pinch to scale, twist to rotate, midpoint to move
+                const dist = (a, b) => Math.sqrt((a.x - b.x) ** 2 + (a.y - b.y) ** 2);
+                const angle = (a, b) => Math.atan2(b.y - a.y, b.x - a.x);
+                t.scale = clamp(start.t.scale * (dist(pts[0], pts[1]) / (dist(start.pts[0], start.pts[1]) || 1)), 0.2, 2.6);
+                t.rot = start.t.rot + (angle(pts[0], pts[1]) - angle(start.pts[0], start.pts[1])) * 180 / Math.PI;
+                t.x = clamp(start.t.x + ((pts[0].x + pts[1].x) / 2 - (start.pts[0].x + start.pts[1].x) / 2) / rect.width * 100, -20, 120);
+                t.y = clamp(start.t.y + ((pts[0].y + pts[1].y) / 2 - (start.pts[0].y + start.pts[1].y) / 2) / rect.height * 100, -20, 120);
+            }
+            const el = dressLayerEl(cosmeticDrag.id);
+            if (el) applyLayerTransform(el, t);
         }
 
-        function applyCosmetic() {
-            const currentData = currentEgg === 'lintel' ? lintel : prowler;
-            currentData.selectedCosmetic = selectedCosmetic;
-            updateDisplay();
-            toggleCosmetics();
+        function dressPointerEnd(e) {
+            if (!cosmeticDrag) return;
+            cosmeticDrag.pointers.delete(e.pointerId);
+            if (cosmeticDrag.pointers.size === 0) {
+                cosmeticDrag = null;
+                saveGame();
+            } else {
+                gestureStart();
+            }
+        }
+
+        function dressWheel(e) {
+            if (!dressUpMode) return;
+            const id = dressItemAt(e.clientX, e.clientY);
+            if (!id) return;
+            e.preventDefault();
+            const t = currentLook(currentPet())[id];
+            if (!t) return;
+            const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+            if (e.shiftKey) {
+                t.rot += e.deltaY > 0 ? 5 : -5;
+            } else {
+                t.scale = clamp(t.scale * (e.deltaY > 0 ? 0.95 : 1.05), 0.2, 2.6);
+            }
+            const el = dressLayerEl(id);
+            if (el) applyLayerTransform(el, t);
             saveGame();
         }
 
-        function removeCosmetic() {
-            const currentData = currentEgg === 'lintel' ? lintel : prowler;
-            currentData.selectedCosmetic = '';
-            selectedCosmetic = '';
-            updateDisplay();
-            updatePreview();
-            toggleCosmetics();
-            saveGame();
+        function unlockCosmetic(id, announce = true) {
+            const owned = ownedCosmetics(currentPet());
+            if (owned.includes(id)) return false;
+            owned.push(id);
+            if (announce) {
+                customAlert(`🎁 New cosmetic: ${cosmeticCatalog[id].name}! Check Dress Up.`);
+            }
+            if (owned.length >= Object.keys(cosmeticCatalog).length) {
+                award('full_wardrobe');
+            }
+            return true;
+        }
+
+        function unlockRandomCosmetic() {
+            const owned = ownedCosmetics(currentPet());
+            const locked = Object.keys(cosmeticCatalog).filter(id => !owned.includes(id));
+            if (locked.length === 0) return;
+            unlockCosmetic(locked[Math.floor(Math.random() * locked.length)]);
+        }
+
+        // --- Progression: achievements, story fragments, daily goals ---
+
+        let meta = {
+            achievements: [],
+            fragments: [],
+            stats: { gathers: 0, bossKills: 0, bestWave: 0, bestScore: 0, shards: 0 },
+            daily: null
+        };
+
+        function loadMeta() {
+            const saved = localStorage.getItem('lintelgotchiMeta');
+            if (saved) {
+                try { Object.assign(meta, JSON.parse(saved)); } catch (err) { /* keep defaults */ }
+            }
+        }
+
+        function saveMeta() {
+            localStorage.setItem('lintelgotchiMeta', JSON.stringify(meta));
+        }
+
+        const achievementDefs = {
+            first_hatch: { emoji: '🐣', name: 'First Hatch', desc: 'Hatch your first creature' },
+            named: { emoji: '✍️', name: 'A True Name', desc: 'Name a creature' },
+            both_hatched: { emoji: '🌗', name: 'Sky and Shadow', desc: 'Hatch both Lintel and Prowler' },
+            first_adult: { emoji: '👑', name: 'All Grown Up', desc: 'Raise a creature to adulthood' },
+            wave_5: { emoji: '🌊', name: 'Cloud Defender', desc: 'Clear wave 5 in an adventure' },
+            wave_10: { emoji: '⚔️', name: 'Silver Sentinel', desc: 'Clear wave 10 in an adventure' },
+            boss_slayer: { emoji: '💥', name: 'Boss Slayer', desc: 'Defeat a boss' },
+            boss_5: { emoji: '🐉', name: 'Legend of the Skies', desc: 'Defeat 5 bosses' },
+            score_300: { emoji: '🏅', name: 'Star Harvester', desc: 'Score 300+ in one gathering round' },
+            shard_10: { emoji: '💎', name: 'Shard Collector', desc: 'Collect 10 rare shards' },
+            blissful: { emoji: '💗', name: 'Blissful', desc: 'Reach 100 mood' },
+            stylist: { emoji: '🎩', name: 'Stylist', desc: 'Wear 3 cosmetics at once' },
+            full_wardrobe: { emoji: '👗', name: 'Full Wardrobe', desc: 'Collect every cosmetic for one creature' }
+        };
+
+        function award(id) {
+            if (meta.achievements.includes(id)) return;
+            meta.achievements.push(id);
+            const def = achievementDefs[id];
+            customAlert(`🏆 Achievement: ${def.emoji} ${def.name}!`, 4000);
+            saveMeta();
+        }
+
+        const storyFragments = [
+            { id: 'shattering', title: 'The Celestial Shattering', hint: 'Finish a gathering round',
+              text: 'Long ago, a star fell from the Celestial Realm and shattered, scattering Heavenly Fragments across the Earth. The veil between realms broke with it — and nothing was ever ordinary again.' },
+            { id: 'merging', title: 'The Merging of Realms', hint: 'Raise a creature to adulthood',
+              text: 'When the star fell, the barriers between dimensions turned thin as mist. The Fairy Realm, the Demon Realm and hundreds of others merged with the human world. The Merging changed everything.' },
+            { id: 'presence', title: 'Presence', hint: 'Clear your first adventure wave',
+              text: 'Presence is the fundamental force beneath all existence. It can be trained, grown, and tested — the strong radiate it like heat. Every tower you raise draws upon it.' },
+            { id: 'lintels', title: 'Lintels of the Skies', hint: 'Hatch a Lintel',
+              text: 'Lintels drift through the skies of the merged world — cloud-like creatures born of holy radiation and city haze. They bend the weather, amplify magic, and carry a gentle healing aura wherever they float.' },
+            { id: 'prowlers', title: 'The Prowlers', hint: 'Hatch a Prowler',
+              text: 'In Duskkin territory, giant spectral winged felines called Prowlers stand watch. Fiercely loyal guardians, they bond for life with elite Duskkin warriors — and never forget a friend.' },
+            { id: 'ashai', title: 'Ashai and the Pendant of Life', hint: 'Place an Ashai tower',
+              text: 'Ashai Bennet came to London searching for the truth about her parents. Around her neck hangs Thyia, the Pendant of Life — a Holy Item that weaves shields and light from the energy of all living things.' },
+            { id: 'goaden', title: 'Goaden of the Demon’s Legion', hint: 'Place a Goaden tower',
+              text: 'Goaden Reeves grew up on the streets and rose to lead the Demon’s Legion — vigilantes turned global music icons. His sword Vega is forged from Stellarian metal, burning with celestial energy.' },
+            { id: 'yukon', title: 'Yukon of the Onari', hint: 'Place a Yukon tower',
+              text: 'Yukon is an Onari — grey-skinned shapeshifters, custodians of nature. Most Onari take three animal forms, a gift from Yuvan. Yukon alone can become any creature he chooses.' },
+            { id: 'whisper', title: 'Whisper and the All-Seeing Eye', hint: 'Place a Whisper tower',
+              text: 'The MI6 agent called Whisper wields the All-Seeing Eye, an Infernal Item that shows unfiltered truth. Whisper hides the depths of that power — for the Eye’s gaze pulls its bearer toward madness, and toward the one called Nameless.' },
+            { id: 'chill', title: 'Chill, Born of Ice', hint: 'Place a Chill tower',
+              text: 'Chill is an exceptional fairy — born of ice, without wings, walking at human size. His family was lost to the old fairy king, and he found refuge with Goaden’s father. Behind his bubbly warmth lies a winter he never speaks of.' },
+            { id: 'guardians', title: 'Fate and the Guardians', hint: 'Defeat a boss',
+              text: 'From the fallen star’s essence, the cosmic entity Fate forged the Holy Items and bestowed them upon worthy souls. With them came the Guardians — celestial beings bonded to each item, visible only to their masters… and to beings of significant power.' },
+            { id: 'sanctuary', title: 'Sanctuary in the Sky', hint: 'Clear wave 10',
+              text: 'Above London, held aloft on clouds, floats the Sanctuary in the Sky. The Church built it as a holy site; these days it is also the city’s most impossible nightclub. Unity, it turns out, has a dance floor.' },
+            { id: 'nimbus', title: 'Nimbus, the Cloud Rat', hint: 'Collect 10 rare shards',
+              text: 'They call him the Cloud Rat. Nimbus is a mutated Lintel who swallows spells whole and drinks in stray magic — proof that even the softest creatures of the sky can grow strange and wonderful.' },
+            { id: 'grimoire', title: 'The Silver Cloud Grimoire', hint: 'Complete all 3 daily goals',
+              text: 'Deep in the Church’s keeping lies the Silver Cloud Grimoire, said to hold all arcane knowledge. Those who touch it for the first time receive a vision. No two visions are ever the same.' }
+        ];
+
+        function unlockFragment(id) {
+            if (meta.fragments.includes(id)) return;
+            const fragment = storyFragments.find(f => f.id === id);
+            if (!fragment) return;
+            meta.fragments.push(id);
+            customAlert(`📜 Story fragment unlocked: "${fragment.title}" — read it in the 📖 Book!`, 4200);
+            saveMeta();
+        }
+
+        const dailyGoalDefs = {
+            feed: { label: 'Feed your creature 2 times', target: 2 },
+            water: { label: 'Give water 2 times', target: 2 },
+            pet: { label: 'Pet your creature 3 times', target: 3 },
+            gather: { label: 'Finish a gathering round', target: 1 },
+            catch: { label: 'Catch 12 items while gathering', target: 12 },
+            wave: { label: 'Clear 3 adventure waves', target: 3 },
+            mood80: { label: 'Get mood up to 80', target: 1 }
+        };
+
+        function ensureDaily() {
+            const today = new Date().toISOString().slice(0, 10);
+            if (meta.daily && meta.daily.date === today) return;
+            const ids = Object.keys(dailyGoalDefs);
+            let seed = 0;
+            for (const ch of today) seed = (seed * 31 + ch.charCodeAt(0)) >>> 0;
+            const picked = [];
+            while (picked.length < 3) {
+                seed = (seed * 1103515245 + 12345) >>> 0;
+                const id = ids[seed % ids.length];
+                if (!picked.includes(id)) picked.push(id);
+            }
+            meta.daily = { date: today, goals: picked.map(id => ({ id, progress: 0, done: false })) };
+            saveMeta();
+        }
+
+        function bumpDaily(type, amount = 1) {
+            ensureDaily();
+            const goal = meta.daily.goals.find(g => g.id === type && !g.done);
+            if (!goal) return;
+            goal.progress += amount;
+            if (goal.progress >= dailyGoalDefs[type].target) {
+                goal.done = true;
+                resources.rareItem++;
+                customAlert(`✅ Daily goal done: ${dailyGoalDefs[type].label}! +1 ⭐`);
+                updateDisplay();
+                if (meta.daily.goals.every(g => g.done)) {
+                    if (!meta.fragments.includes('grimoire')) {
+                        unlockFragment('grimoire');
+                    } else {
+                        resources.rareItem += 2;
+                        customAlert('🌟 All daily goals complete! +2 bonus ⭐');
+                    }
+                }
+                saveGame();
+            }
+            saveMeta();
+        }
+
+        let bookTab = 'story';
+
+        function openBook() {
+            playSound('button-sound');
+            ensureDaily();
+            renderBook(bookTab);
+            showModalCard('book-dialog');
+        }
+
+        function renderBook(tab) {
+            bookTab = tab;
+            document.querySelectorAll('#book-tabs button').forEach(button => {
+                button.classList.toggle('active-tab', button.dataset.tab === tab);
+            });
+            const content = document.getElementById('book-content');
+            content.innerHTML = '';
+
+            if (tab === 'story') {
+                const header = document.createElement('div');
+                header.className = 'book-count';
+                header.innerText = `${meta.fragments.length}/${storyFragments.length} fragments of The Secrets of Silver Clouds`;
+                content.appendChild(header);
+                storyFragments.forEach(fragment => {
+                    const entry = document.createElement('div');
+                    const unlocked = meta.fragments.includes(fragment.id);
+                    entry.className = 'book-entry' + (unlocked ? '' : ' locked');
+                    const title = document.createElement('b');
+                    title.innerText = unlocked ? `📜 ${fragment.title}` : '📜 ???';
+                    entry.appendChild(title);
+                    const body = document.createElement('div');
+                    body.className = unlocked ? 'fragment-text' : 'book-hint';
+                    body.innerText = unlocked ? fragment.text : `Unlock: ${fragment.hint}`;
+                    entry.appendChild(body);
+                    content.appendChild(entry);
+                });
+            } else if (tab === 'achievements') {
+                const header = document.createElement('div');
+                header.className = 'book-count';
+                header.innerText = `${meta.achievements.length}/${Object.keys(achievementDefs).length} achievements`;
+                content.appendChild(header);
+                for (const [id, def] of Object.entries(achievementDefs)) {
+                    const entry = document.createElement('div');
+                    const unlocked = meta.achievements.includes(id);
+                    entry.className = 'book-entry' + (unlocked ? '' : ' locked');
+                    entry.innerText = `${def.emoji} ${def.name} — ${def.desc}${unlocked ? ' ✓' : ''}`;
+                    content.appendChild(entry);
+                }
+            } else {
+                const header = document.createElement('div');
+                header.className = 'book-count';
+                header.innerText = 'Today’s goals — each earns +1 ⭐, all 3 hold a secret…';
+                content.appendChild(header);
+                meta.daily.goals.forEach(goal => {
+                    const def = dailyGoalDefs[goal.id];
+                    const entry = document.createElement('div');
+                    entry.className = 'book-entry' + (goal.done ? ' goal-done' : '');
+                    entry.innerText = goal.done
+                        ? `✅ ${def.label}`
+                        : `⬜ ${def.label} — ${Math.min(goal.progress, def.target)}/${def.target}`;
+                    content.appendChild(entry);
+                });
+            }
+        }
+
+        const stageOrder = ['egg', 'cracked_egg', 'baby', 'teen', 'adult'];
+
+        function grantStageCosmetics(data, announce = true) {
+            const stageIdx = stageOrder.indexOf(data.stage);
+            const grants = [];
+            if (stageIdx >= 2) grants.push('flower_wreath', 'blue_silk_scarf');
+            if (stageIdx >= 3) grants.push('cloud_cap');
+            if (stageIdx >= 4) grants.push('star_crown');
+            const owned = ownedCosmetics(data);
+            let added = 0;
+            for (const id of grants) {
+                if (!owned.includes(id)) {
+                    owned.push(id);
+                    added++;
+                    if (announce) {
+                        customAlert(`🎁 Growth gift: ${cosmeticCatalog[id].name}!`);
+                    }
+                }
+            }
+            if (added > 0 && owned.length >= Object.keys(cosmeticCatalog).length) {
+                award('full_wardrobe');
+            }
+            return added;
         }
 
         function updateEggData() {
@@ -603,9 +1523,6 @@
                 resources = prowler.resources || resources;
             }
 
-            if ((lintel.cosmetics.length > 0 || prowler.cosmetics.length > 0) && document.getElementById('cosmetics-button').style.display === 'none') {
-                document.getElementById('cosmetics-button').style.display = 'block';
-            }
         }
 
         function playSound(id) {
@@ -620,11 +1537,16 @@
             const lintelDisplay = document.getElementById('lintel-display');
             const currentData = currentEgg === 'lintel' ? lintel : prowler;
             const images = currentEgg === 'lintel' ? lintelImages : prowlerImages;
-            lintelDisplay.style.backgroundImage = `url(${images[currentData.stage]})`;
-            lintelDisplay.style.filter = cosmeticFilters[currentData.selectedCosmetic] || 'none';
+            if (typeof currentData.mood !== 'number') {
+                currentData.mood = 70;
+            }
+            document.getElementById('pet-image').src = images[currentData.stage];
+            lintelDisplay.style.filter = currentData.mood < 40 ? 'saturate(0.55) brightness(0.95)' : 'none';
+            renderCosmeticLayers(currentData);
 
             document.getElementById('food-bar').querySelector('.stat-fill').style.width = `${currentData.food}%`;
             document.getElementById('water-bar').querySelector('.stat-fill').style.width = `${currentData.water}%`;
+            document.getElementById('mood-bar').querySelector('.stat-fill').style.width = `${currentData.mood}%`;
             document.getElementById('exp-bar').querySelector('.stat-fill').style.width = `${(currentData.exp / currentData.maxExp) * 100}%`;
             document.getElementById('growth-bar').querySelector('.stat-fill').style.width = `${(currentData.growthProgress / currentData.growthNeeded) * 100}%`;
 
@@ -634,6 +1556,41 @@
             document.getElementById('level').innerText = currentData.level;
             document.getElementById('stage').innerText = currentData.stage.charAt(0).toUpperCase() + currentData.stage.slice(1).replace('_', ' ');
             document.getElementById('lintel-name').innerText = currentData.name || (currentEgg === 'lintel' ? 'Lintel' : 'Prowler');
+
+            const growthHints = {
+                egg: '🥚 Next: the egg cracks open!',
+                cracked_egg: '🐣 Next: your creature hatches — you get to name it!',
+                baby: '🌟 Next: grows into a teen!',
+                teen: '👑 Next: becomes a mighty adult!',
+                adult: '✨ Fully grown — keep leveling for rewards!'
+            };
+            document.getElementById('growth-hint').innerText = growthHints[currentData.stage] || '';
+            document.getElementById('trait-line').innerText = traitLineText(currentData);
+        }
+
+        function traitLineText(currentData) {
+            if (currentData.stage === 'egg' || currentData.stage === 'cracked_egg') {
+                return '🥚 Traits appear after hatching';
+            }
+            const parts = [];
+            parts.push(currentEgg === 'lintel'
+                ? '🌿 Nurturer: hearty meals, steady mood'
+                : '🌙 Night Hunter: +15% gather score, +20% bounties');
+            const stageAbilities = {
+                baby: '💞 Adorable: petting cheers double',
+                teen: '🧺 Quick Paws: wider, faster basket',
+                adult: '👑 Silver Presence: +20 adventure health'
+            };
+            if (stageAbilities[currentData.stage]) {
+                parts.push(stageAbilities[currentData.stage]);
+            }
+            const mood = getMood(currentData);
+            if (mood >= 70) {
+                parts.push('💗 Happy: +25% XP');
+            } else if (mood < 40) {
+                parts.push('💧 Glum: needs care and play');
+            }
+            return parts.join(' · ');
         }
 
         function handleButtonClick(action) {
@@ -672,7 +1629,13 @@
             if (resources.food > 0) {
                 resources.food--;
                 const currentData = currentEgg === 'lintel' ? lintel : prowler;
-                currentData.food = Math.min(100, currentData.food + 20);
+                // Lintel's Nurturer trait: meals restore more
+                const restore = currentEgg === 'lintel' ? 25 : 20;
+                currentData.food = Math.min(100, currentData.food + restore);
+                spawnFloatingText(`+${restore} 🍎`, '#a5f3ec');
+                addAnimationClass('animate-happy', 600);
+                addMood(2);
+                bumpDaily('feed');
                 gainExp(5);
                 updateDisplay();
                 checkGrowth();
@@ -685,7 +1648,12 @@
             if (resources.water > 0) {
                 resources.water--;
                 const currentData = currentEgg === 'lintel' ? lintel : prowler;
-                currentData.water = Math.min(100, currentData.water + 20);
+                const restore = currentEgg === 'lintel' ? 25 : 20;
+                currentData.water = Math.min(100, currentData.water + restore);
+                spawnFloatingText(`+${restore} 💧`, '#8ecdf7');
+                addAnimationClass('animate-happy', 600);
+                addMood(2);
+                bumpDaily('water');
                 gainExp(5);
                 updateDisplay();
                 checkGrowth();
@@ -723,12 +1691,18 @@
 
         function gainExp(amount) {
             const currentData = currentEgg === 'lintel' ? lintel : prowler;
+            // Happy pets earn +25% XP
+            if (getMood(currentData) >= 70) {
+                amount = Math.round(amount * 1.25);
+            }
             currentData.exp += amount;
             if (currentData.exp >= currentData.maxExp) {
                 currentData.level++;
                 currentData.exp -= currentData.maxExp;
                 currentData.maxExp = Math.floor(currentData.maxExp * 1.5);
-                customAlert(`${currentEgg === 'lintel' ? 'Lintel' : 'Prowler'} has reached level ${currentData.level}!`);
+                customAlert(`🎊 ${currentEgg === 'lintel' ? 'Lintel' : 'Prowler'} has reached level ${currentData.level}!`);
+                spawnFloatingText(`Level ${currentData.level}!`, '#f1c40f');
+                addAnimationClass('animate-level', 1000);
                 currentData.growthProgress += 20;
                 checkGrowth();
             }
@@ -740,32 +1714,49 @@
                 switch(currentData.stage) {
                     case 'egg':
                         currentData.stage = 'cracked_egg';
-                        customAlert("Your egg has cracked!");
+                        addAnimationClass('animate-stage', 1200);
+                        customAlert("🥚 Your egg has cracked!");
                         break;
                     case 'cracked_egg':
-                        let name = prompt("Your creature has hatched into a baby! Give your creature a name:");
-                        if (name) {
-                            currentData.name = name;
-                        }
                         currentData.stage = 'baby';
+                        addAnimationClass('animate-stage', 1200);
+                        award('first_hatch');
+                        unlockFragment(currentEgg === 'lintel' ? 'lintels' : 'prowlers');
+                        if (lintel.stage !== 'egg' && lintel.stage !== 'cracked_egg' &&
+                            prowler.stage !== 'egg' && prowler.stage !== 'cracked_egg') {
+                            award('both_hatched');
+                        }
+                        showNameDialog(name => {
+                            if (name) {
+                                currentData.name = name;
+                                award('named');
+                            }
+                            updateDisplay();
+                            saveGame();
+                        });
                         break;
                     case 'baby':
                         currentData.stage = 'teen';
-                        customAlert("Your creature has grown into a teenager!");
+                        addAnimationClass('animate-stage', 1200);
+                        customAlert("🌟 Your creature has grown into a teenager!");
                         break;
                     case 'teen':
                         currentData.stage = 'adult';
-                        customAlert("Your creature has become an adult!");
+                        addAnimationClass('animate-stage', 1200);
+                        customAlert("👑 Your creature has become an adult!");
+                        award('first_adult');
+                        unlockFragment('merging');
                         break;
                 }
                 currentData.growthProgress = 0;
                 currentData.growthNeeded = Math.floor(currentData.growthNeeded * 1.5);
+                grantStageCosmetics(currentData);
             }
             updateDisplay();
             saveGame();
         }
 
-        function addAnimationClass(animationClass) {
+        function addAnimationClass(animationClass, duration = 1000) {
             const lintelDisplay = document.getElementById('lintel-display');
             lintelDisplay.classList.remove('animate-hover');
             lintelDisplay.classList.add(animationClass);
@@ -773,13 +1764,19 @@
             setTimeout(() => {
                 lintelDisplay.classList.remove(animationClass);
                 lintelDisplay.classList.add('animate-hover');
-            }, 1000);
+            }, duration);
         }
 
         function gameLoop() {
             const currentData = currentEgg === 'lintel' ? lintel : prowler;
             currentData.food = Math.max(0, currentData.food - 0.5);
             currentData.water = Math.max(0, currentData.water - 0.5);
+            // Lintel's Nurturer trait: mood decays more slowly
+            let moodDecay = currentEgg === 'lintel' ? 0.04 : 0.05;
+            if (currentData.food === 0 || currentData.water === 0) {
+                moodDecay += 0.1;
+            }
+            currentData.mood = Math.max(0, getMood(currentData) - moodDecay);
             updateDisplay();
             saveGame();
         }
@@ -816,6 +1813,15 @@
         }
 
         let gatheringGameActive = false;
+        let gatherSession = { food: 0, water: 0, rare: 0, xp: 0, score: 0, combo: 0, bestCombo: 0 };
+        let gatherPowerups = {};
+        let gatherKeys = {};
+        let gatherEndTimeout = null;
+        let gatherTickInterval = null;
+        let gatherTimerInterval = null;
+        let gatherTimeLeft = 0;
+        let gatherBasketSpeed = 7;
+        const GATHER_DURATION = 20;
         let basketPosition = 175;
         const basketElement = document.getElementById('basket');
         const miniGameElement = document.getElementById('mini-game');
@@ -831,17 +1837,74 @@
             }
             gatheringGameActive = true;
             gatherCount++;
+            gatherSession = { food: 0, water: 0, rare: 0, xp: 0, score: 0, combo: 0, bestCombo: 0 };
+            gatherPowerups = {};
+            gatherKeys = {};
+            gatherTimeLeft = GATHER_DURATION;
             miniGameElement.style.display = 'block';
             basketElement.style.left = '175px';
             basketPosition = 175;
+            // Teen/adult ability "Quick Paws": wider, faster basket
+            const quickPaws = currentData.stage === 'teen' || currentData.stage === 'adult';
+            basketElement.style.width = quickPaws ? '72px' : '60px';
+            gatherBasketSpeed = quickPaws ? 9 : 7;
+            updateGatherHud();
             spawnItems();
+            // Happy pets get an extra powerup drop
+            const powerupTimes = isHappy() ? [5000, 8500, 12000] : [5000, 12000];
+            powerupTimes.forEach(delay => setTimeout(spawnPowerup, delay));
             document.addEventListener('mousemove', moveBasket);
-            document.addEventListener('touchmove', moveBasketTouch);
-            setTimeout(endGatheringGame, 15000);
+            miniGameElement.addEventListener('touchmove', moveBasketTouch, { passive: false });
+            miniGameElement.addEventListener('touchstart', moveBasketTouch, { passive: false });
+            document.addEventListener('keydown', gatherKeyDown);
+            document.addEventListener('keyup', gatherKeyUp);
+            gatherTickInterval = setInterval(gatherTick, 16);
+            gatherTimerInterval = setInterval(() => {
+                gatherTimeLeft--;
+                updateGatherHud();
+            }, 1000);
+            gatherEndTimeout = setTimeout(endGatheringGame, GATHER_DURATION * 1000);
+        }
 
-            if (gatherCount % 2 === 0) {
-                setTimeout(spawnPresent, 5000);
+        function gatherTick() {
+            const speed = gatherBasketSpeed;
+            if (gatherKeys.left) basketPosition -= speed;
+            if (gatherKeys.right) basketPosition += speed;
+            basketPosition = Math.max(0, Math.min(basketPosition, miniGameElement.clientWidth - basketElement.offsetWidth));
+            basketElement.style.left = basketPosition + 'px';
+
+            const now = Date.now();
+            let expired = false;
+            for (const key of ['magnet', 'slow', 'double']) {
+                if (gatherPowerups[key] && now > gatherPowerups[key]) {
+                    delete gatherPowerups[key];
+                    expired = true;
+                }
             }
+            if (expired) updateGatherHud();
+        }
+
+        function gatherKeyDown(e) {
+            if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') { gatherKeys.left = true; e.preventDefault(); }
+            if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') { gatherKeys.right = true; e.preventDefault(); }
+        }
+
+        function gatherKeyUp(e) {
+            if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') gatherKeys.left = false;
+            if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') gatherKeys.right = false;
+        }
+
+        function updateGatherHud() {
+            document.getElementById('gather-score').innerText = `Score: ${gatherSession.score}`;
+            const comboEl = document.getElementById('gather-combo');
+            comboEl.innerText = gatherSession.combo >= 2 ? `Combo ×${gatherSession.combo}` : '';
+            document.getElementById('gather-timer').innerText = `${Math.max(0, gatherTimeLeft)}s`;
+            const icons = [];
+            if (gatherPowerups.magnet) icons.push('🧲');
+            if (gatherPowerups.slow) icons.push('🐌');
+            if (gatherPowerups.double) icons.push('2️⃣');
+            if (gatherPowerups.shield) icons.push('🛡️');
+            document.getElementById('gather-powerups').innerText = icons.join(' ');
         }
 
         function moveBasket(e) {
@@ -852,6 +1915,7 @@
         }
 
         function moveBasketTouch(e) {
+            e.preventDefault();
             const gameRect = miniGameElement.getBoundingClientRect();
             basketPosition = e.touches[0].clientX - gameRect.left - 30;
             basketPosition = Math.max(0, Math.min(basketPosition, gameRect.width - basketElement.offsetWidth));
@@ -873,152 +1937,394 @@
             return svg;
         }
 
-        function createPresent(color) {
-            const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-            svg.setAttribute("viewBox", "0 0 100 100");
-            svg.setAttribute("width", "40");
-            svg.setAttribute("height", "40");
-            const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-            rect.setAttribute("x", "25");
-            rect.setAttribute("y", "25");
-            rect.setAttribute("width", "50");
-            rect.setAttribute("height", "50");
-            rect.setAttribute("fill", color);
-            rect.setAttribute("stroke", "white");
-            rect.setAttribute("stroke-width", "2");
-            rect.style.filter = "drop-shadow(0 0 5px rgba(255, 255, 255, 0.8))";
-            svg.appendChild(rect);
-            return svg;
+        const gatherItemTable = [
+            { type: 'food', weight: 34 },
+            { type: 'water', weight: 34 },
+            { type: 'xp', weight: 12 },
+            { type: 'shard', weight: 6 },
+            { type: 'hazard', weight: 14 }
+        ];
+
+        function pickGatherItem() {
+            const total = gatherItemTable.reduce((sum, item) => sum + item.weight, 0);
+            let roll = Math.random() * total;
+            for (const item of gatherItemTable) {
+                roll -= item.weight;
+                if (roll <= 0) return item.type;
+            }
+            return 'food';
+        }
+
+        function createGatherIcon(type) {
+            if (type === 'food') return createGraffitiStar('#FFD700');
+            if (type === 'water') return createGraffitiStar('#00BFFF');
+            const emojiMap = { xp: '✨', shard: '💎', hazard: '🌩️', magnet: '🧲', slow: '🐌', double: '2️⃣', shield: '🛡️' };
+            const icon = document.createElement('div');
+            icon.style.fontSize = '30px';
+            icon.style.textAlign = 'center';
+            icon.style.lineHeight = '40px';
+            icon.innerText = emojiMap[type] || '❓';
+            return icon;
         }
 
         function spawnItems() {
             if (!gatheringGameActive) return;
+            dropGatherItem(pickGatherItem());
+            setTimeout(spawnItems, Math.random() * 500 + 350);
+        }
+
+        function spawnPowerup() {
+            if (!gatheringGameActive) return;
+            const types = ['magnet', 'slow', 'double', 'shield'];
+            dropGatherItem(types[Math.floor(Math.random() * types.length)], true);
+        }
+
+        function dropGatherItem(type, isPowerup = false) {
+            if (!gatheringGameActive) return;
             const item = document.createElement('div');
-            item.className = 'falling-item';
+            item.className = 'falling-item' + (isPowerup ? ' powerup-item' : '');
             item.style.left = Math.random() * (miniGameElement.clientWidth - 40) + 'px';
-            const isFood = Math.random() < 0.5;
-            const star = createGraffitiStar(isFood ? '#FFD700' : '#00BFFF');
-            item.appendChild(star);
+            item.appendChild(createGatherIcon(type));
             miniGameElement.appendChild(item);
 
             let itemPosition = 0;
             const fallInterval = setInterval(() => {
                 if (!gatheringGameActive) {
                     clearInterval(fallInterval);
+                    item.remove();
                     return;
                 }
-                itemPosition += 5;
+                itemPosition += gatherPowerups.slow ? 2.5 : 5;
+
+                let itemLeft = parseFloat(item.style.left);
+                if (gatherPowerups.magnet && !isPowerup && type !== 'hazard' && itemPosition > 100) {
+                    const basketCenter = basketPosition + basketElement.offsetWidth / 2;
+                    const itemCenter = itemLeft + 20;
+                    if (Math.abs(basketCenter - itemCenter) < 120) {
+                        itemLeft += Math.sign(basketCenter - itemCenter) * 4;
+                        item.style.left = itemLeft + 'px';
+                    }
+                }
+
                 item.style.top = itemPosition + 'px';
                 if (itemPosition >= 260) {
-                    const itemLeft = parseInt(item.style.left);
-                    if (itemLeft >= basketPosition - 20 && itemLeft <= basketPosition + basketElement.offsetWidth - 20) {
-                        if (isFood) {
-                            resources.food++;
-                        } else {
-                            resources.water++;
-                        }
-                        playSound('star-sound');
-                        updateDisplay();
+                    const itemCenter = itemLeft + 20;
+                    const basketLeft = basketPosition;
+                    const basketRight = basketPosition + basketElement.offsetWidth;
+                    if (itemCenter >= basketLeft - 5 && itemCenter <= basketRight + 5) {
+                        catchGatherItem(type, isPowerup, itemCenter, basketLeft + basketElement.offsetWidth / 2);
+                    } else if (!isPowerup && type !== 'hazard' && gatherSession.combo > 0) {
+                        gatherSession.combo = 0;
+                        updateGatherHud();
                     }
-                    miniGameElement.removeChild(item);
+                    item.remove();
                     clearInterval(fallInterval);
                 }
             }, 50);
-
-            if (gatheringGameActive) {
-                setTimeout(spawnItems, Math.random() * 1000 + 500);
-            }
         }
 
-        function spawnPresent() {
-            if (!gatheringGameActive) return;
-            const present = document.createElement('div');
-            present.className = 'falling-item';
-            present.style.left = Math.random() * (miniGameElement.clientWidth - 40) + 'px';
-            const gift = createPresent('#FF0000');
-            present.appendChild(gift);
-            miniGameElement.appendChild(present);
+        function catchGatherItem(type, isPowerup, itemCenter, basketCenter) {
+            if (isPowerup) {
+                if (type === 'shield') {
+                    gatherPowerups.shield = true;
+                } else {
+                    gatherPowerups[type] = Date.now() + 8000;
+                }
+                playSound('present-sound');
+                const labels = { magnet: '🧲 Magnet!', slow: '🐌 Slow fall!', double: '2️⃣ Double rewards!', shield: '🛡️ Shield!' };
+                spawnGatherPopup(basketCenter, labels[type], '#9df7ff');
+                updateGatherHud();
+                return;
+            }
 
-            let presentPosition = 0;
-            const fallInterval = setInterval(() => {
-                if (!gatheringGameActive) {
-                    clearInterval(fallInterval);
-                    return;
+            if (type === 'hazard') {
+                if (gatherPowerups.shield) {
+                    delete gatherPowerups.shield;
+                    spawnGatherPopup(basketCenter, '🛡️ Blocked!', '#9df7ff');
+                } else {
+                    gatherSession.combo = 0;
+                    gatherSession.score = Math.max(0, gatherSession.score - 20);
+                    spawnGatherPopup(basketCenter, 'Ouch! -20', '#ff7675');
+                    miniGameElement.classList.add('gather-shake');
+                    setTimeout(() => miniGameElement.classList.remove('gather-shake'), 400);
                 }
-                presentPosition += 5;
-                present.style.top = presentPosition + 'px';
-                if (presentPosition >= 260) {
-                    const presentLeft = parseInt(present.style.left);
-                    if (presentLeft >= basketPosition - 20 && presentLeft <= basketPosition + basketElement.offsetWidth - 20) {
-                        resources.rareItem++;
-                        playSound('present-sound');
-                        updateDisplay();
-                    }
-                    miniGameElement.removeChild(present);
-                    clearInterval(fallInterval);
+                updateGatherHud();
+                return;
+            }
+
+            const mult = gatherPowerups.double ? 2 : 1;
+            gatherSession.combo++;
+            gatherSession.bestCombo = Math.max(gatherSession.bestCombo, gatherSession.combo);
+            const perfect = Math.abs(itemCenter - basketCenter) < 12;
+            let points = ({ food: 10, water: 10, xp: 25, shard: 50 })[type] * mult;
+            points += Math.min(gatherSession.combo, 10);
+            if (perfect) points += 10;
+            // Prowler's Night Hunter trait: +15% gather score
+            if (currentEgg === 'prowler') {
+                points = Math.round(points * 1.15);
+            }
+            gatherSession.score += points;
+
+            switch (type) {
+                case 'food': resources.food += mult; gatherSession.food += mult; break;
+                case 'water': resources.water += mult; gatherSession.water += mult; break;
+                case 'shard': resources.rareItem += mult; gatherSession.rare += mult; break;
+                case 'xp': gatherSession.xp += 5 * mult; break;
+            }
+
+            if (type === 'shard') {
+                meta.stats.shards += mult;
+                if (meta.stats.shards >= 10) {
+                    award('shard_10');
+                    unlockFragment('nimbus');
                 }
-            }, 50);
+                saveMeta();
+            }
+            bumpDaily('catch');
+            playSound(type === 'shard' ? 'present-sound' : 'star-sound');
+            spawnGatherPopup(basketCenter, (perfect ? 'Perfect! ' : '') + '+' + points, perfect ? '#f1c40f' : '#fff');
+            updateDisplay();
+            updateGatherHud();
+        }
+
+        function spawnGatherPopup(x, text, color) {
+            const popup = document.createElement('div');
+            popup.className = 'gather-popup';
+            popup.style.left = Math.max(0, Math.min(x - 30, miniGameElement.clientWidth - 60)) + 'px';
+            popup.style.color = color;
+            popup.innerText = text;
+            miniGameElement.appendChild(popup);
+            setTimeout(() => popup.remove(), 900);
         }
 
         function endGatheringGame() {
+            if (!gatheringGameActive) return;
             gatheringGameActive = false;
+            clearTimeout(gatherEndTimeout);
+            clearInterval(gatherTickInterval);
+            clearInterval(gatherTimerInterval);
             miniGameElement.style.display = 'none';
             document.removeEventListener('mousemove', moveBasket);
-            document.removeEventListener('touchmove', moveBasketTouch);
-            while (miniGameElement.firstChild) {
-                miniGameElement.removeChild(miniGameElement.firstChild);
+            miniGameElement.removeEventListener('touchmove', moveBasketTouch);
+            miniGameElement.removeEventListener('touchstart', moveBasketTouch);
+            document.removeEventListener('keydown', gatherKeyDown);
+            document.removeEventListener('keyup', gatherKeyUp);
+            miniGameElement.querySelectorAll('.falling-item, .gather-popup').forEach(el => el.remove());
+
+            const xpGained = 20 + gatherSession.xp + Math.floor(gatherSession.score / 50) * 5;
+            gainExp(xpGained);
+            addMood(5);
+            meta.stats.gathers++;
+            meta.stats.bestScore = Math.max(meta.stats.bestScore, gatherSession.score);
+            unlockFragment('shattering');
+            if (gatherSession.score >= 300) {
+                award('score_300');
             }
-            miniGameElement.appendChild(basketElement);
-            gainExp(20);
+            bumpDaily('gather');
+            saveMeta();
+            const rewards = [
+                `🏆 Score: ${gatherSession.score}`,
+                `🔥 Best combo: ×${gatherSession.bestCombo}`,
+                `🍎 Food ×${gatherSession.food}`,
+                `💧 Water ×${gatherSession.water}`,
+                `💗 +5 Mood`,
+                `✨ +${xpGained} XP`
+            ];
+            if (gatherSession.rare > 0) {
+                rewards.splice(4, 0, `💎 Rare shards ×${gatherSession.rare}`);
+            }
+            if (gatherSession.score >= 250) {
+                unlockRandomCosmetic();
+            }
+            showRewardScreen('Gathering Complete!', rewards);
             updateDisplay();
             saveGame();
         }
 
-        function customAlert(message) {
-            const alertBox = document.createElement('div');
-            alertBox.style.position = 'fixed';
-            alertBox.style.top = '50%';
-            alertBox.style.left = '50%';
-            alertBox.style.transform = 'translate(-50%, -50%)';
-            alertBox.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
-            alertBox.style.color = '#fff';
-            alertBox.style.padding = '20px';
-            alertBox.style.borderRadius = '10px';
-            alertBox.style.boxShadow = '0 0 15px rgba(0, 0, 0, 0.3)';
-            alertBox.innerText = message;
-
-            const okButton = document.createElement('button');
-            okButton.style.marginTop = '10px';
-            okButton.style.padding = '10px 20px';
-            okButton.style.border = 'none';
-            okButton.style.borderRadius = '5px';
-            okButton.style.backgroundColor = '#007bff';
-            okButton.style.color = '#fff';
-            okButton.style.cursor = 'pointer';
-            okButton.innerText = 'OK';
-            okButton.onclick = () => {
-                document.body.removeChild(alertBox);
-            };
-
-            alertBox.appendChild(okButton);
-            document.body.appendChild(alertBox);
+        function customAlert(message, duration = 3200) {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.innerText = message;
+            container.appendChild(toast);
+            setTimeout(() => toast.classList.add('toast-hide'), duration);
+            setTimeout(() => toast.remove(), duration + 450);
+            while (container.children.length > 4) {
+                container.removeChild(container.firstChild);
+            }
         }
 
-        function getColorForCosmetic(cosmetic) {
-            switch (cosmetic) {
-                case 'red':
-                    return 'red';
-                case 'blue':
-                    return 'blue';
-                case 'green':
-                    return 'green';
-                case 'yellow':
-                    return 'yellow';
-                case 'purple':
-                    return 'purple';
-                default:
-                    return 'none';
+        function showRewardScreen(title, rewards) {
+            document.getElementById('reward-title').innerText = title;
+            const list = document.getElementById('reward-list');
+            list.innerHTML = '';
+            rewards.forEach((reward, i) => {
+                const row = document.createElement('div');
+                row.className = 'reward-row';
+                row.style.animationDelay = `${0.15 + i * 0.12}s`;
+                row.innerText = reward;
+                list.appendChild(row);
+            });
+            showModalCard('reward-screen');
+        }
+
+        function showModalCard(id) {
+            ['reward-screen', 'name-dialog', 'tutorial-dialog', 'save-dialog', 'book-dialog'].forEach(cardId => {
+                document.getElementById(cardId).style.display = cardId === id ? 'block' : 'none';
+            });
+            document.getElementById('modal-overlay').style.display = 'flex';
+        }
+
+        function closeRewardScreen() {
+            playSound('button-sound');
+            document.getElementById('modal-overlay').style.display = 'none';
+        }
+
+        let nameDialogCallback = null;
+
+        function showNameDialog(callback) {
+            nameDialogCallback = callback;
+            const input = document.getElementById('name-input');
+            input.value = '';
+            showModalCard('name-dialog');
+            input.focus();
+        }
+
+        const TUTORIAL_SEEN_KEY = 'lintelgotchiTutorialSeen';
+        const tutorialSteps = [
+            { title: '🥚 Welcome!', text: 'This is your creature. Click or tap it to say hello, and use the 🍎 Feed and 💧 Water buttons to fill its bars and help it grow.' },
+            { title: '💗 Keep it happy', text: 'Watch the pink Mood bar — pet, feed and play to keep it high. A happy creature earns +25% XP and starts adventures with bonus Presence!' },
+            { title: '⭐ Gathering', text: 'The scroll button starts the gathering game. Move the basket to catch stars for food and water, grab 💎 shards and powerups, and dodge 🌩️ storm hazards.' },
+            { title: '🗺️ Adventure', text: 'The compass button opens tower defense. Place towers beside the road during build phases, clear waves, and face a boss every 5th wave!' },
+            { title: '🎩 Make it yours', text: 'You unlock cosmetics as you play. Open Dress Up and drag them onto your creature — pinch or scroll to resize, twist to tilt. Have fun!' }
+        ];
+        let tutorialStep = 0;
+
+        function startTutorial() {
+            playSound('button-sound');
+            tutorialStep = 0;
+            renderTutorialStep();
+            showModalCard('tutorial-dialog');
+        }
+
+        function renderTutorialStep() {
+            const step = tutorialSteps[tutorialStep];
+            document.getElementById('tutorial-title').innerText = step.title;
+            document.getElementById('tutorial-text').innerText = step.text;
+            document.getElementById('tutorial-dots').innerText =
+                tutorialSteps.map((s, i) => i === tutorialStep ? '●' : '○').join('');
+            document.getElementById('tutorial-next').innerText =
+                tutorialStep === tutorialSteps.length - 1 ? "Let's go!" : 'Next';
+        }
+
+        function tutorialNext() {
+            playSound('button-sound');
+            tutorialStep++;
+            if (tutorialStep >= tutorialSteps.length) {
+                endTutorial();
+            } else {
+                renderTutorialStep();
             }
+        }
+
+        function endTutorial() {
+            localStorage.setItem(TUTORIAL_SEEN_KEY, 'true');
+            document.getElementById('modal-overlay').style.display = 'none';
+        }
+
+        const SAVE_KEYS = ['selectedEgg', 'lintel', 'prowler', 'resources', 'tiredUntil', 'gatherCount', 'lintelgotchiMusicEnabled', 'lintelgotchiTutorialSeen', 'lintelgotchiMeta'];
+
+        function exportSaveCode() {
+            const data = {};
+            for (const key of SAVE_KEYS) {
+                const value = localStorage.getItem(key);
+                if (value !== null) data[key] = value;
+            }
+            return btoa(unescape(encodeURIComponent(JSON.stringify(data))));
+        }
+
+        function openSaveDialog() {
+            playSound('button-sound');
+            document.getElementById('save-code').value = exportSaveCode();
+            showModalCard('save-dialog');
+        }
+
+        function copySaveCode() {
+            playSound('button-sound');
+            const textarea = document.getElementById('save-code');
+            textarea.select();
+            textarea.setSelectionRange(0, textarea.value.length);
+            const finish = () => customAlert('📋 Save code copied — keep it somewhere safe!');
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(textarea.value).then(finish, () => {
+                    document.execCommand('copy');
+                    finish();
+                });
+            } else {
+                document.execCommand('copy');
+                finish();
+            }
+        }
+
+        function importSaveCode(code) {
+            try {
+                const data = JSON.parse(decodeURIComponent(escape(atob(code.trim()))));
+                if (!data || typeof data !== 'object' || (!data.lintel && !data.prowler)) {
+                    throw new Error('missing pets');
+                }
+                for (const key of SAVE_KEYS) {
+                    localStorage.removeItem(key);
+                }
+                for (const [key, value] of Object.entries(data)) {
+                    if (SAVE_KEYS.includes(key) && typeof value === 'string') {
+                        localStorage.setItem(key, value);
+                    }
+                }
+                location.reload();
+            } catch (err) {
+                customAlert("⚠️ That save code doesn't look right — double-check you copied all of it.");
+            }
+        }
+
+        let resetSaveArmed = false;
+
+        function resetSave() {
+            playSound('button-sound');
+            const button = document.getElementById('reset-save-button');
+            if (!resetSaveArmed) {
+                resetSaveArmed = true;
+                button.textContent = '⚠️ Really reset? Click again';
+                setTimeout(() => {
+                    resetSaveArmed = false;
+                    button.textContent = 'Reset save';
+                }, 4000);
+                return;
+            }
+            for (const key of SAVE_KEYS) {
+                localStorage.removeItem(key);
+            }
+            location.reload();
+        }
+
+        function confirmName() {
+            playSound('button-sound');
+            const name = document.getElementById('name-input').value.trim();
+            document.getElementById('modal-overlay').style.display = 'none';
+            const callback = nameDialogCallback;
+            nameDialogCallback = null;
+            if (callback) {
+                callback(name);
+            }
+        }
+
+        function spawnFloatingText(text, color) {
+            const lintelDisplay = document.getElementById('lintel-display');
+            const floatEl = document.createElement('div');
+            floatEl.className = 'floating-text';
+            floatEl.style.color = color || '#fff';
+            floatEl.innerText = text;
+            lintelDisplay.appendChild(floatEl);
+            setTimeout(() => floatEl.remove(), 1200);
         }
 
         updateDisplay();
@@ -1031,6 +2337,7 @@
         const tdPresenceDisplay = document.getElementById('td-presence-display');
         const tdWaveDisplay = document.getElementById('td-wave-display');
         const tdHealthDisplay = document.getElementById('td-health-display');
+        const tdStatusDisplay = document.getElementById('td-status-display');
         const tdContextMenu = document.getElementById('td-context-menu');
         const tdContextMenuUpgrade = document.createElement('button');
         const tdContextMenuSpecial = document.createElement('button');
@@ -1039,10 +2346,24 @@
         tdContextMenu.appendChild(tdContextMenuSpecial);
 
         let tdGameActive = false;
-        let tdSelectedTower = null;
-        let tdEnemySpawnInterval;
-        let tdDifficultyInterval;
+        let tdPhase = 'idle'; // idle | build | wave | over
+        let tdSpawnQueue = [];
+        let tdSpawnTimer = null;
+        let tdPlacementType = null;
+        let tdMousePos = null;
         let tdClickedTower = null;
+        let tdEffects = [];
+
+        const TD_COSTS = { Goaden: 75, Ashai: 100, Yukon: 125, Whisper: 150, Chill: 125 };
+        const TD_RANGES = { Goaden: 120, Ashai: 150, Yukon: 100, Whisper: 100, Chill: 100 };
+
+        const bossDefs = {
+            gloom_colossus: { label: 'Gloom Colossus', hp: 1.4, speed: 0.35 },
+            frost_wyrm: { label: 'Frost Wyrm', hp: 1.0, speed: 0.5 },
+            starlash_runner: { label: 'Starlash Runner', hp: 0.6, speed: 0.9 },
+            spectral_regent: { label: 'Spectral Regent', hp: 0.8, speed: 0.5 },
+            eclipse_devourer: { label: 'Eclipse Devourer', hp: 1.2, speed: 0.45 }
+        };
 
         const tdGameState = {
             towers: [],
@@ -1057,6 +2378,7 @@
             ],
             presence: 200,
             wave: 0,
+            wavesCleared: 0,
             health: 100
         };
 
@@ -1067,6 +2389,7 @@
             whisper: { tower: null, attack: null },
             chill: { tower: null, attack: null },
             enemy: { normal: null, fast: null, spectral: null },
+            boss: {},
             adventureBackground: null
         };
 
@@ -1089,22 +2412,25 @@
 
         async function loadAllImages() {
             try {
-                tdImages.goaden.tower = await loadImage('images/goaden_tower.png');
-                tdImages.goaden.attack = await loadImage('images/goaden_attack.png');
-                tdImages.ashai.tower = await loadImage('images/ashai_tower.png');
-                tdImages.ashai.attack = await loadImage('images/ashai_attack.png');
-                tdImages.yukon.tower = await loadImage('images/yukon_tower.png');
-                tdImages.yukon.attack_bear = await loadImage('images/yukon_attack_bear.png');
-                tdImages.yukon.attack_cheetah = await loadImage('images/yukon_attack_cheetah.png');
-                tdImages.yukon.attack_bird = await loadImage('images/yukon_attack_bird.png');
-                tdImages.whisper.tower = await loadImage('images/whisper_tower.png');
-                tdImages.whisper.attack = await loadImage('images/whisper_attack.png');
-                tdImages.chill.tower = await loadImage('images/chill_tower.png');
-                tdImages.chill.attack = await loadImage('images/chill_attack.png');
-                tdImages.enemy.normal = await loadImage('images/enemy_normal.png');
-                tdImages.enemy.fast = await loadImage('images/enemy_fast.png');
-                tdImages.enemy.spectral = await loadImage('images/enemy_spectral.png');
-                tdImages.adventureBackground = await loadImage('images/adventure_game_background.png');
+                tdImages.goaden.tower = await loadImage('images/art/goaden_tower_v2.png');
+                tdImages.goaden.attack = await loadImage('images/art/goaden_attack_v2.png');
+                tdImages.ashai.tower = await loadImage('images/art/ashai_tower_v2.png');
+                tdImages.ashai.attack = await loadImage('images/art/ashai_attack_v2.png');
+                tdImages.yukon.tower = await loadImage('images/art/yukon_tower_v2.png');
+                tdImages.yukon.attack_bear = await loadImage('images/art/yukon_attack_bear_v2.png');
+                tdImages.yukon.attack_cheetah = await loadImage('images/art/yukon_attack_cheetah_v2.png');
+                tdImages.yukon.attack_bird = await loadImage('images/art/yukon_attack_bird_v2.png');
+                tdImages.whisper.tower = await loadImage('images/art/whisper_tower_v2.png');
+                tdImages.whisper.attack = await loadImage('images/art/whisper_attack_v2.png');
+                tdImages.chill.tower = await loadImage('images/art/chill_tower_v2.png');
+                tdImages.chill.attack = await loadImage('images/art/chill_attack_v2.png');
+                tdImages.enemy.normal = await loadImage('images/art/enemy_normal_v2.png');
+                tdImages.enemy.fast = await loadImage('images/art/enemy_fast_v2.png');
+                tdImages.enemy.spectral = await loadImage('images/art/enemy_spectral_v2.png');
+                for (const bossKey of Object.keys(bossDefs)) {
+                    tdImages.boss[bossKey] = await loadImage(`images/art/boss_${bossKey}_v2.png`);
+                }
+                tdImages.adventureBackground = await loadImage('images/art/adventure_game_background_v2.png');
                 console.log('All tower defense images loaded successfully');
             } catch (error) {
                 console.error('Error loading tower defense images:', error);
@@ -1154,11 +2480,15 @@
 
     draw() {
         try {
-            ctx.beginPath();
-            ctx.arc(this.x, this.y, this.attackRange, 0, Math.PI * 2);
-            ctx.strokeStyle = 'rgba(0, 0, 255, 0.2)';
-            ctx.stroke();
-            ctx.closePath();
+            if (this === tdClickedTower) {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.attackRange, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(120, 200, 255, 0.1)';
+                ctx.fill();
+                ctx.strokeStyle = 'rgba(120, 200, 255, 0.7)';
+                ctx.stroke();
+                ctx.closePath();
+            }
 
             const image = tdImages[this.type.toLowerCase()].tower;
             ctx.drawImage(image, this.x - this.radius, this.y - this.radius, this.radius * 2, this.radius * 2);
@@ -1176,7 +2506,6 @@
                 ctx.lineTo(this.x, this.y);
                 ctx.fill();
             }
-            drawTowerButtons(this);
         } catch (error) {
             console.error('Error drawing tower:', error);
         }
@@ -1202,6 +2531,7 @@
                     const now = Date.now();
                     if (now - this.lastAttack > 1000 / this.attackSpeed) {
                         for (let enemy of enemies) {
+                            if (enemy.allegiance !== 'enemy') continue;
                             const dx = enemy.x - this.x;
                             const dy = enemy.y - this.y;
                             const distance = Math.sqrt(dx * dx + dy * dy);
@@ -1314,7 +2644,7 @@
                     if (Math.random() < this.critChance) {
                         damage *= 2;
                     }
-                    if (this.level >= 2 && Math.random() < 0.1) {
+                    if (this.level >= 2 && Math.random() < 0.1 && enemy.type !== 'boss') {
                         enemy.health = 0;
                     }
                     enemy.health -= damage;
@@ -1333,13 +2663,15 @@
             chillAttack(enemy, damage) {
                 try {
                     enemy.health -= damage;
-                    enemy.speed *= (1 - this.slowEffect);
+                    const slowFloor = enemy.type === 'boss' ? 0.6 : 0.4;
+                    enemy.speed = Math.max(enemy.baseSpeed * slowFloor, enemy.speed * (1 - this.slowEffect));
                     if (this.level >= 2) {
                         tdGameState.enemies.forEach(nearbyEnemy => {
                             const nearbyDistance = Math.sqrt((nearbyEnemy.x - enemy.x)**2 + (nearbyEnemy.y - enemy.y)**2);
                             if (nearbyDistance <= 50) {
                                 nearbyEnemy.health -= damage * 0.5;
-                                nearbyEnemy.speed *= (1 - this.slowEffect * 0.5);
+                                const nearbyFloor = nearbyEnemy.type === 'boss' ? 0.6 : 0.4;
+                                nearbyEnemy.speed = Math.max(nearbyEnemy.baseSpeed * nearbyFloor, nearbyEnemy.speed * (1 - this.slowEffect * 0.5));
                             }
                         });
                     }
@@ -1393,7 +2725,7 @@
                     if (this.specialAbilityCooldown === 0) {
                         const spectralCount = this.level;
                         for (let i = 0; i < spectralCount; i++) {
-                            const spectral = new TDEnemy('spectral', 0, this.x, this.y);
+                            const spectral = new TDEnemy('spectral', Math.max(1, tdGameState.wave), this.x, this.y);
                             spectral.allegiance = 'tower';
                             tdGameState.enemies.push(spectral);
                         }
@@ -1479,14 +2811,10 @@
         }
 
         class TDEnemy {
-            constructor(type, startIndex = 0, startX = null, startY = null) {
-                this.x = startX !== null ? startX : tdGameState.path[startIndex].x;
-                this.y = startY !== null ? startY : tdGameState.path[startIndex].y;
-                this.radius = 15;
-                this.speed = type === 'fast' ? 1.5 : 1;
-                this.health = type === 'fast' ? 50 : 100;
-                this.maxHealth = this.health;
-                this.pathIndex = startIndex;
+            constructor(type, wave = 1, startX = null, startY = null, bossKey = null) {
+                this.x = startX !== null ? startX : tdGameState.path[0].x;
+                this.y = startY !== null ? startY : tdGameState.path[0].y;
+                this.pathIndex = 0;
                 this.type = type;
                 this.stunned = false;
                 this.frozen = false;
@@ -1494,19 +2822,68 @@
                 this.allegiance = 'enemy';
                 this.poisoned = false;
                 this.poisonDuration = 0;
-                this.damage = type === 'spectral' ? 20 : 10;
+
+                const scale = 1 + (wave - 1) * 0.25;
+                if (type === 'boss') {
+                    const def = bossDefs[bossKey] || bossDefs.frost_wyrm;
+                    this.bossKey = bossKey;
+                    this.bossLabel = def.label;
+                    this.radius = 34;
+                    this.speed = def.speed;
+                    this.health = Math.round(600 * def.hp * (1 + Math.max(0, wave - 5) * 0.12));
+                    this.damage = 30;
+                    this.bounty = 150;
+                    this.canSmash = true;
+                } else if (type === 'fast') {
+                    this.radius = 15;
+                    this.speed = 1.5;
+                    this.health = Math.round(50 * scale);
+                    this.damage = 10;
+                    this.bounty = 12;
+                } else if (type === 'spectral') {
+                    this.radius = 15;
+                    this.speed = 1.1;
+                    this.health = Math.round(70 * scale);
+                    this.damage = 20;
+                    this.bounty = 15;
+                } else {
+                    this.radius = 15;
+                    this.speed = 1;
+                    this.health = Math.round(100 * scale);
+                    this.damage = 10;
+                    this.bounty = 10;
+                }
+                this.baseSpeed = this.speed;
+                this.maxHealth = this.health;
             }
 
             draw() {
                 try {
-                    const image = tdImages.enemy[this.type] || tdImages.enemy.normal;
-                    ctx.drawImage(image, this.x - this.radius, this.y - this.radius, this.radius * 2, this.radius * 2);
-
-                    if (this.allegiance !== 'tower' || this.type !== 'spectral') {
+                    if (this.type === 'boss') {
+                        const bossImage = tdImages.boss[this.bossKey];
+                        if (bossImage) {
+                            ctx.drawImage(bossImage, this.x - this.radius, this.y - this.radius, this.radius * 2, this.radius * 2);
+                        }
+                        const barWidth = 70;
                         ctx.fillStyle = 'red';
-                        ctx.fillRect(this.x - 15, this.y - 20, 30, 5);
+                        ctx.fillRect(this.x - barWidth / 2, this.y - this.radius - 12, barWidth, 7);
                         ctx.fillStyle = 'green';
-                        ctx.fillRect(this.x - 15, this.y - 20, 30 * (this.health / this.maxHealth), 5);
+                        ctx.fillRect(this.x - barWidth / 2, this.y - this.radius - 12, barWidth * Math.max(0, this.health / this.maxHealth), 7);
+                        ctx.fillStyle = 'white';
+                        ctx.font = 'bold 12px Arial';
+                        ctx.textAlign = 'center';
+                        ctx.fillText(this.bossLabel, this.x, this.y - this.radius - 17);
+                        ctx.textAlign = 'start';
+                    } else {
+                        const image = tdImages.enemy[this.type] || tdImages.enemy.normal;
+                        ctx.drawImage(image, this.x - this.radius, this.y - this.radius, this.radius * 2, this.radius * 2);
+
+                        if (this.allegiance !== 'tower' || this.type !== 'spectral') {
+                            ctx.fillStyle = 'red';
+                            ctx.fillRect(this.x - 15, this.y - 20, 30, 5);
+                            ctx.fillStyle = 'green';
+                            ctx.fillRect(this.x - 15, this.y - 20, 30 * Math.max(0, this.health / this.maxHealth), 5);
+                        }
                     }
 
                     if (this.poisoned) {
@@ -1583,8 +2960,6 @@ return false;
                                 enemy.health -= this.damage / 10;
                             }
                         });
-                        this.pathIndex = this.pathIndex || 0;
-                        this.move();
                     }
                 } catch (error) {
                     console.error('Error updating enemy:', error);
@@ -1600,15 +2975,120 @@ return false;
     }
 }
 
-        function spawnTDEnemy() {
-            try {
-                if (tdGameActive) {
-                    const enemyType = Math.random() < 0.3 ? 'fast' : 'normal';
-                    tdGameState.enemies.push(new TDEnemy(enemyType, 0));
+        function waveComposition(wave) {
+            const queue = [];
+            const count = 4 + wave * 2;
+            for (let i = 0; i < count; i++) {
+                let type = 'normal';
+                const roll = Math.random();
+                if (wave >= 3 && roll < 0.12 + wave * 0.02) {
+                    type = 'spectral';
+                } else if (wave >= 2 && roll < 0.45) {
+                    type = 'fast';
                 }
-            } catch (error) {
-                console.error('Error spawning enemy:', error);
+                queue.push({ type });
             }
+            if (wave % 5 === 0) {
+                const bossKeys = Object.keys(bossDefs);
+                queue.push({ type: 'boss', bossKey: bossKeys[(wave / 5 - 1) % bossKeys.length] });
+            }
+            return queue;
+        }
+
+        function setTdButton(label, disabled) {
+            tdStartButton.textContent = label;
+            tdStartButton.disabled = disabled;
+        }
+
+        function startTDWave() {
+            tdGameState.wave++;
+            tdSpawnQueue = waveComposition(tdGameState.wave);
+            tdPhase = 'wave';
+            setTdButton(`Wave ${tdGameState.wave} — defend!`, true);
+            if (tdSpawnQueue.some(entry => entry.type === 'boss')) {
+                customAlert(`⚠️ A boss approaches on wave ${tdGameState.wave}! It can smash one of your towers!`);
+            }
+            const spawnInterval = Math.max(450, 1500 - tdGameState.wave * 50);
+            clearInterval(tdSpawnTimer);
+            tdSpawnTimer = setInterval(() => {
+                if (!tdGameActive || tdSpawnQueue.length === 0) {
+                    clearInterval(tdSpawnTimer);
+                    return;
+                }
+                const next = tdSpawnQueue.shift();
+                tdGameState.enemies.push(new TDEnemy(next.type, tdGameState.wave, null, null, next.bossKey));
+            }, spawnInterval);
+        }
+
+        function completeTDWave() {
+            tdPhase = 'build';
+            tdGameState.wavesCleared = tdGameState.wave;
+            const isBossWave = tdGameState.wave % 5 === 0;
+            let bonus = 40 + tdGameState.wave * 10;
+            const waveXp = 10 + tdGameState.wave * 3;
+            if (isBossWave) {
+                bonus += 100;
+                resources.rareItem++;
+                customAlert(`👑 Boss wave ${tdGameState.wave} cleared! +${bonus} Presence, +${waveXp} XP, +1 rare item!`);
+                unlockRandomCosmetic();
+            } else {
+                customAlert(`🌊 Wave ${tdGameState.wave} cleared! +${bonus} Presence, +${waveXp} XP`);
+            }
+            tdGameState.presence += bonus;
+            gainExp(waveXp);
+            addMood(3);
+            meta.stats.bestWave = Math.max(meta.stats.bestWave, tdGameState.wave);
+            unlockFragment('presence');
+            if (tdGameState.wave >= 5) award('wave_5');
+            if (tdGameState.wave >= 10) {
+                award('wave_10');
+                unlockFragment('sanctuary');
+            }
+            bumpDaily('wave');
+            saveMeta();
+            updateDisplay();
+            setTdButton(`Start Wave ${tdGameState.wave + 1}`, false);
+            updateTDUI();
+            saveGame();
+        }
+
+        function bossTrySmash(boss) {
+            for (let i = 0; i < tdGameState.towers.length; i++) {
+                const tower = tdGameState.towers[i];
+                const distance = Math.sqrt((tower.x - boss.x) ** 2 + (tower.y - boss.y) ** 2);
+                if (distance < 70) {
+                    tdGameState.towers.splice(i, 1);
+                    boss.canSmash = false;
+                    if (tdClickedTower === tower) {
+                        tdClickedTower = null;
+                        hideTDContextMenu();
+                    }
+                    tdEffects.push({ x: tower.x, y: tower.y, radius: 10, maxRadius: 55, color: '255, 100, 40' });
+                    customAlert(`💥 ${boss.bossLabel} smashed your ${tower.type} tower!`);
+                    return;
+                }
+            }
+        }
+
+        function distToSegment(px, py, a, b) {
+            const dx = b.x - a.x;
+            const dy = b.y - a.y;
+            const lengthSq = dx * dx + dy * dy;
+            let t = lengthSq === 0 ? 0 : ((px - a.x) * dx + (py - a.y) * dy) / lengthSq;
+            t = Math.max(0, Math.min(1, t));
+            const cx = a.x + t * dx;
+            const cy = a.y + t * dy;
+            return Math.sqrt((px - cx) ** 2 + (py - cy) ** 2);
+        }
+
+        function isValidTowerSpot(x, y) {
+            if (x < 30 || x > canvas.width - 30 || y < 30 || y > canvas.height - 30) return false;
+            // Only the road surface itself (drawn 30px wide, half-width 15) is blocked,
+            // so towers can be placed right up against the enemy path
+            for (let i = 0; i < tdGameState.path.length - 1; i++) {
+                if (distToSegment(x, y, tdGameState.path[i], tdGameState.path[i + 1]) < 16) return false;
+            }
+            return !tdGameState.towers.some(tower => Math.sqrt((tower.x - x) ** 2 + (tower.y - y) ** 2) < 42);
         }
 
         function drawTDPath() {
@@ -1618,9 +3098,17 @@ return false;
                 for (let i = 1; i < tdGameState.path.length; i++) {
                     ctx.lineTo(tdGameState.path[i].x, tdGameState.path[i].y);
                 }
-                ctx.strokeStyle = 'gray';
+                ctx.lineJoin = 'round';
+                ctx.lineCap = 'round';
+                ctx.strokeStyle = 'rgba(70, 50, 110, 0.45)';
+                ctx.lineWidth = 30;
                 ctx.stroke();
-                ctx.closePath();
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+                ctx.lineWidth = 2;
+                ctx.setLineDash([12, 10]);
+                ctx.stroke();
+                ctx.setLineDash([]);
+                ctx.lineWidth = 1;
             } catch (error) {
                 console.error('Error drawing path:', error);
             }
@@ -1630,7 +3118,15 @@ return false;
             try {
                 tdPresenceDisplay.textContent = `Presence: ${tdGameState.presence}`;
                 tdWaveDisplay.textContent = `Wave: ${tdGameState.wave}`;
-                tdHealthDisplay.textContent = `Health: ${tdGameState.health}`;
+                tdHealthDisplay.textContent = `Health: ${Math.max(0, tdGameState.health)}`;
+                if (tdPhase === 'wave') {
+                    const remaining = tdSpawnQueue.length + tdGameState.enemies.filter(e => e.allegiance === 'enemy').length;
+                    tdStatusDisplay.textContent = `Enemies left: ${remaining}`;
+                } else if (tdPhase === 'build') {
+                    tdStatusDisplay.textContent = '🔨 Build phase — place and upgrade towers!';
+                } else {
+                    tdStatusDisplay.textContent = '';
+                }
             } catch (error) {
                 console.error('Error updating UI:', error);
             }
@@ -1657,25 +3153,86 @@ function tdGameLoop() {
             tower.attack(tdGameState.enemies);
         }
 
+        const spawnedAdds = [];
         tdGameState.enemies = tdGameState.enemies.filter(enemy => {
-            enemy.draw();
             enemy.update();
             const reachedEnd = enemy.move();
-            
-            if (enemy.health <= 0) {
-                if (enemy.allegiance === 'enemy') tdGameState.presence += 10;
-                return false;
+
+            if (enemy.type === 'boss' && enemy.canSmash) {
+                bossTrySmash(enemy);
             }
-            
-            if (reachedEnd) {
+
+            enemy.draw();
+
+            if (enemy.health <= 0) {
                 if (enemy.allegiance === 'enemy') {
-                    tdGameState.health -= enemy.damage;
+                    // Prowler's Night Hunter trait: +20% Presence bounties
+                    const bountyMult = currentEgg === 'prowler' ? 1.2 : 1;
+                    tdGameState.presence += Math.round((enemy.bounty || 10) * bountyMult);
+                    tdEffects.push({ x: enemy.x, y: enemy.y, radius: 5, maxRadius: enemy.type === 'boss' ? 65 : 25, color: '255, 215, 0' });
+                    if (enemy.type === 'boss') {
+                        meta.stats.bossKills++;
+                        award('boss_slayer');
+                        if (meta.stats.bossKills >= 5) award('boss_5');
+                        unlockFragment('guardians');
+                        saveMeta();
+                    }
+                    if (enemy.bossKey === 'spectral_regent') {
+                        customAlert('👻 The Spectral Regent splits into spectres!');
+                        for (let i = 0; i < 3; i++) {
+                            const add = new TDEnemy('spectral', tdGameState.wave, enemy.x + (i - 1) * 25, enemy.y);
+                            add.pathIndex = enemy.pathIndex;
+                            spawnedAdds.push(add);
+                        }
+                    }
                 }
                 return false;
             }
-            
+
+            if (reachedEnd) {
+                if (enemy.allegiance === 'enemy') {
+                    tdGameState.health -= enemy.damage;
+                    tdEffects.push({ x: enemy.x, y: enemy.y, radius: 5, maxRadius: 40, color: '255, 60, 60' });
+                }
+                return false;
+            }
+
             return true;
         });
+        tdGameState.enemies.push(...spawnedAdds);
+
+        tdEffects = tdEffects.filter(effect => {
+            effect.radius += 2.5;
+            ctx.beginPath();
+            ctx.arc(effect.x, effect.y, effect.radius, 0, Math.PI * 2);
+            ctx.strokeStyle = `rgba(${effect.color}, ${Math.max(0, 1 - effect.radius / effect.maxRadius)})`;
+            ctx.lineWidth = 3;
+            ctx.stroke();
+            return effect.radius < effect.maxRadius;
+        });
+        ctx.lineWidth = 1;
+
+        if (tdPlacementType && tdMousePos) {
+            const valid = isValidTowerSpot(tdMousePos.x, tdMousePos.y);
+            const range = TD_RANGES[tdPlacementType];
+            ctx.beginPath();
+            ctx.arc(tdMousePos.x, tdMousePos.y, range, 0, Math.PI * 2);
+            ctx.fillStyle = valid ? 'rgba(80, 255, 120, 0.12)' : 'rgba(255, 80, 80, 0.15)';
+            ctx.fill();
+            ctx.strokeStyle = valid ? 'rgba(80, 255, 120, 0.7)' : 'rgba(255, 80, 80, 0.7)';
+            ctx.stroke();
+            ctx.closePath();
+            const ghostImage = tdImages[tdPlacementType.toLowerCase()].tower;
+            if (ghostImage) {
+                ctx.globalAlpha = 0.6;
+                ctx.drawImage(ghostImage, tdMousePos.x - 30, tdMousePos.y - 30, 60, 60);
+                ctx.globalAlpha = 1;
+            }
+        }
+
+        if (tdPhase === 'wave' && tdSpawnQueue.length === 0 && !tdGameState.enemies.some(e => e.allegiance === 'enemy')) {
+            completeTDWave();
+        }
 
         updateTDUI();
         checkTDGameOver();
@@ -1690,49 +3247,38 @@ function tdGameLoop() {
             try {
                     if (tdGameState.health <= 0) {
                     tdGameActive = false;
-                    clearInterval(tdEnemySpawnInterval);
-                    clearInterval(tdDifficultyInterval);
-                    const wavesCompleted = tdGameState.wave;
-                    const xpGained = Math.floor(wavesCompleted / 2) * 50;
-                    const resourcesGained = Math.floor(wavesCompleted / 2) * 10;
-                    const rareItemsGained = Math.floor(wavesCompleted / 3); // Gain 1 rare item every 3 waves
+                    tdPhase = 'over';
+                    clearInterval(tdSpawnTimer);
+                    cancelTowerPlacement();
+                    hideTDContextMenu();
+                    const wavesCleared = tdGameState.wavesCleared;
+                    const xpGained = wavesCleared * 25;
+                    const resourcesGained = wavesCleared * 5;
+                    const rareItemsGained = Math.floor(wavesCleared / 3);
 
-                    alert(`Game Over! You survived ${wavesCompleted} waves!`);
-                    
                     const currentData = currentEgg === 'lintel' ? lintel : prowler;
                     currentData.exp += xpGained;
                     resources.food += resourcesGained;
                     resources.water += resourcesGained;
-                    resources.rareItem += rareItemsGained; // Add rare items
+                    resources.rareItem += rareItemsGained;
 
                     updateDisplay();
                     saveGame();
 
+                    showRewardScreen(`Defeated on wave ${tdGameState.wave} — ${wavesCleared} waves cleared!`, [
+                        `✨ +${xpGained} XP`,
+                        `🍎 +${resourcesGained} food`,
+                        `💧 +${resourcesGained} water`,
+                        `⭐ +${rareItemsGained} rare items`
+                    ]);
+
                     document.getElementById('tower-defense-container').style.display = 'none';
                     document.getElementById('game-container').style.display = 'block';
 
-                    tdStartButton.disabled = false;
+                    setTdButton('Start Game', false);
                 }
             } catch (error) {
                 console.error('Error checking game over:', error);
-            }
-        }
-
-        function increaseTDDifficulty() {
-            try {
-                if (tdGameActive) {
-                    if (tdGameState.wave % 5 === 0) {
-                        tdGameState.enemies.push(new TDEnemy('fast', 0));
-                    }
-                    tdGameState.enemies.push(new TDEnemy('normal', 0));
-                    if (tdGameState.wave % 7 === 0) {
-                        tdGameState.enemies.push(new TDEnemy('spectral', 0));
-                    }
-                    tdGameState.wave++;
-                    updateTDUI();
-                }
-            } catch (error) {
-                console.error('Error increasing difficulty:', error);
             }
         }
 
@@ -1743,8 +3289,16 @@ function tdGameLoop() {
                 tdGameState.enemies = [];
                 tdGameState.presence = 200;
                 tdGameState.wave = 0;
+                tdGameState.wavesCleared = 0;
                 tdGameState.health = 100;
                 tdGameActive = false;
+                tdPhase = 'idle';
+                tdSpawnQueue = [];
+                tdEffects = [];
+                tdClickedTower = null;
+                clearInterval(tdSpawnTimer);
+                cancelTowerPlacement();
+                setTdButton('Start Game', false);
                 updateTDUI();
             } catch (error) {
                 console.error('Error initializing tower defense:', error);
@@ -1753,17 +3307,31 @@ function tdGameLoop() {
 
         tdStartButton.addEventListener('click', () => {
             try {
-                lastUpdateTime = Date.now();
-                tdGameActive = true;
-                tdGameState.wave = 0;
-                tdGameState.health = 100;
-                tdGameState.presence = 200;
-                tdGameState.enemies = [];
-                tdGameState.towers = [];
-                tdGameLoop();
-                tdStartButton.disabled = true;
-                tdEnemySpawnInterval = setInterval(spawnTDEnemy, 2000);
-                tdDifficultyInterval = setInterval(increaseTDDifficulty, 10000);
+                if (tdPhase === 'idle' || tdPhase === 'over') {
+                    lastUpdateTime = Date.now();
+                    tdGameActive = true;
+                    tdPhase = 'build';
+                    tdGameState.wave = 0;
+                    tdGameState.wavesCleared = 0;
+                    const currentData = currentEgg === 'lintel' ? lintel : prowler;
+                    // Adult ability "Silver Presence": +20 base health
+                    tdGameState.health = currentData.stage === 'adult' ? 120 : 100;
+                    // Happy pets start with bonus Presence
+                    tdGameState.presence = 200 + (isHappy() ? 50 : 0);
+                    if (isHappy()) {
+                        customAlert(`💗 ${currentData.name || (currentEgg === 'lintel' ? 'Lintel' : 'Prowler')} is happy — +50 starting Presence!`);
+                    }
+                    tdGameState.enemies = [];
+                    tdGameState.towers = [];
+                    tdSpawnQueue = [];
+                    tdEffects = [];
+                    tdClickedTower = null;
+                    setTdButton('Start Wave 1', false);
+                    updateTDUI();
+                    tdGameLoop();
+                } else if (tdPhase === 'build') {
+                    startTDWave();
+                }
             } catch (error) {
                 console.error('Error starting tower defense:', error);
             }
@@ -1775,40 +3343,62 @@ function tdGameLoop() {
         document.getElementById('td-place-whisper').addEventListener('click', () => placeTDTower('Whisper'));
         document.getElementById('td-place-chill').addEventListener('click', () => placeTDTower('Chill'));
 
+        function canvasCoords(event) {
+            const rect = canvas.getBoundingClientRect();
+            // Exclude the canvas border so cursor position maps exactly to game coordinates
+            return {
+                x: (event.clientX - rect.left - canvas.clientLeft) * (canvas.width / canvas.clientWidth),
+                y: (event.clientY - rect.top - canvas.clientTop) * (canvas.height / canvas.clientHeight)
+            };
+        }
+
+        canvas.addEventListener('mousemove', (event) => {
+            tdMousePos = canvasCoords(event);
+        });
+
+        canvas.addEventListener('mouseleave', () => {
+            tdMousePos = null;
+        });
+
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape' && tdPlacementType) {
+                cancelTowerPlacement();
+            }
+        });
+
         canvas.addEventListener('click', (event) => {
     try {
-        const rect = canvas.getBoundingClientRect();
-        const x = event.clientX - rect.left;
-        const y = event.clientY - rect.top;
+        const { x, y } = canvasCoords(event);
+
+        if (tdPlacementType) {
+            if (!isValidTowerSpot(x, y)) {
+                customAlert("Can't build there — too close to the path or another tower!");
+                return;
+            }
+            const cost = TD_COSTS[tdPlacementType];
+            if (tdGameState.presence < cost) {
+                customAlert('Not enough Presence!');
+                cancelTowerPlacement();
+                return;
+            }
+            tdGameState.presence -= cost;
+            tdGameState.towers.push(new TDTower(x, y, tdPlacementType));
+            unlockFragment(tdPlacementType.toLowerCase());
+            cancelTowerPlacement();
+            updateTDUI();
+            return;
+        }
 
         for (let tower of tdGameState.towers) {
             const dx = x - tower.x;
             const dy = y - tower.y;
-            
-            // Check if click is on upgrade button
-            if (Math.abs(dx) < 30 && dy < -tower.radius && dy > -tower.radius - 40) {
-                if (tower.upgrade()) {
-                    console.log('Tower upgraded');
-                    updateTDUI();
-                } else {
-                    console.log('Not enough resources to upgrade');
-                }
-                return;
-            }
-            
-            // Check if click is on special ability button
-            if (Math.abs(dx) < 30 && dy > tower.radius && dy < tower.radius + 40) {
-                handleTDSpecialAbility(tower);
-                return;
-            }
-
-            // Check if click is on the tower itself
             if (dx*dx + dy*dy < tower.radius*tower.radius) {
                 tdClickedTower = tower;
                 showTDContextMenu(event.clientX, event.clientY, tower);
                 return;
             }
         }
+        tdClickedTower = null;
         hideTDContextMenu();
     } catch (error) {
         console.error('Error handling canvas click:', error);
@@ -1817,56 +3407,30 @@ function tdGameLoop() {
 
         function placeTDTower(type) {
     try {
-        const costs = {
-            Goaden: 75,
-            Ashai: 100,
-            Yukon: 125,
-            Whisper: 150,
-            Chill: 125
-        };
-
-        const cost = costs[type] || 75;
-
-        if (tdGameState.presence >= cost) {
-            function placeTower(event) {
-                const rect = canvas.getBoundingClientRect();
-                const x = event.clientX - rect.left;
-                const y = event.clientY - rect.top;
-
-                tdGameState.towers.push(new TDTower(x, y, type));
-                tdGameState.presence -= cost;
-
-                updateTDUI();
-                canvas.removeEventListener('click', placeTower);
-            }
-
-            canvas.addEventListener('click', placeTower);
-        } else {
-            console.log('Not enough Presence to place tower');
+        if (tdPlacementType === type) {
+            cancelTowerPlacement();
+            return;
+        }
+        if (tdGameState.presence < TD_COSTS[type]) {
+            customAlert(`Not enough Presence for ${type} (${TD_COSTS[type]} needed).`);
+            return;
+        }
+        cancelTowerPlacement();
+        tdPlacementType = type;
+        const button = document.getElementById('td-place-' + type.toLowerCase());
+        if (button) {
+            button.style.outline = '3px solid #ffe66d';
         }
     } catch (error) {
         console.error('Error placing tower:', error);
     }
 }
 
-        function drawTowerButtons(tower) {
-    const boxWidth = 60;
-    const boxHeight = 40;
-    const padding = 5;
-    
-    // Draw upgrade button
-    ctx.fillStyle = 'rgba(0, 255, 0, 0.6)';
-    ctx.fillRect(tower.x - boxWidth/2, tower.y - tower.radius - boxHeight - padding, boxWidth, boxHeight);
-    
-    // Draw special ability button
-    ctx.fillStyle = 'rgba(255, 255, 0, 0.6)';
-    ctx.fillRect(tower.x - boxWidth/2, tower.y + tower.radius + padding, boxWidth, boxHeight);
-    
-    ctx.fillStyle = 'black';
-    ctx.font = '10px Arial';
-    ctx.textAlign = 'center';
-    ctx.fillText('Upgrade', tower.x, tower.y - tower.radius - boxHeight/2 - padding);
-    ctx.fillText('Special', tower.x, tower.y + tower.radius + boxHeight/2 + padding);
+        function cancelTowerPlacement() {
+    tdPlacementType = null;
+    document.querySelectorAll('[id^="td-place-"]').forEach(button => {
+        button.style.outline = '';
+    });
 }
 
 function showTDContextMenu(x, y, tower) {
@@ -1875,14 +3439,19 @@ function showTDContextMenu(x, y, tower) {
         tdContextMenu.style.top = y + 'px';
         tdContextMenu.style.display = 'block';
 
-        tdContextMenuUpgrade.textContent = `Upgrade (${tower.upgradeCost} Presence)`;
+        tdContextMenuUpgrade.textContent = tower.level >= 3 ? 'Max level' : `Upgrade (${tower.upgradeCost} Presence)`;
         tdContextMenuUpgrade.onclick = () => {
             if (tower.upgrade()) {
+                updateTDUI();
                 hideTDContextMenu();
+            } else if (tower.level < 3) {
+                customAlert('Not enough Presence to upgrade!');
             }
         };
 
-        tdContextMenuSpecial.textContent = `Special Ability`;
+        tdContextMenuSpecial.textContent = tower.specialAbilityCooldown > 0
+            ? `Special (${Math.ceil(tower.specialAbilityCooldown / 1000)}s cooldown)`
+            : 'Special Ability';
         tdContextMenuSpecial.onclick = () => {
             handleTDSpecialAbility(tower);
             hideTDContextMenu();
@@ -1903,34 +3472,39 @@ function hideTDContextMenu() {
 document.getElementById('td-exit-button').addEventListener('click', exitTowerDefense);
 
 function exitTowerDefense() {
-    // Save resources gained during the Tower Defense game
-    const wavesCompleted = tdGameState.wave;
-    const xpGained = Math.floor(wavesCompleted / 2) * 50;
-    const resourcesGained = Math.floor(wavesCompleted / 2) * 10;
-    const rareItemsGained = Math.floor(wavesCompleted / 3); // Gain 1 rare item every 3 waves
+    const wavesCleared = tdGameState.wavesCleared;
+    const xpGained = wavesCleared * 25;
+    const resourcesGained = wavesCleared * 5;
+    const rareItemsGained = Math.floor(wavesCleared / 3);
 
     const currentData = currentEgg === 'lintel' ? lintel : prowler;
     currentData.exp += xpGained;
     resources.food += resourcesGained;
     resources.water += resourcesGained;
-    resources.rareItem += rareItemsGained; // Add rare items
+    resources.rareItem += rareItemsGained;
 
     updateDisplay();
     saveGame();
 
     // Stop the Tower Defense game
     tdGameActive = false;
-    clearInterval(tdEnemySpawnInterval);
-    clearInterval(tdDifficultyInterval);
+    tdPhase = 'idle';
+    clearInterval(tdSpawnTimer);
+    cancelTowerPlacement();
+    hideTDContextMenu();
 
     // Hide the Tower Defense container and show the main game container
     document.getElementById('tower-defense-container').style.display = 'none';
     document.getElementById('game-container').style.display = 'block';
 
-    // Enable the start button for future games
-    tdStartButton.disabled = false;
+    setTdButton('Start Game', false);
 
-    alert(`You exited the game after ${wavesCompleted} waves! You gained ${xpGained} XP, ${resourcesGained} food, ${resourcesGained} water, and ${rareItemsGained} rare items.`);
+    showRewardScreen(`Adventure over — ${wavesCleared} waves cleared!`, [
+        `✨ +${xpGained} XP`,
+        `🍎 +${resourcesGained} food`,
+        `💧 +${resourcesGained} water`,
+        `⭐ +${rareItemsGained} rare items`
+    ]);
 }
 
 

@@ -1,0 +1,16 @@
+.DS_Store
+Thumbs.db
+desktop.ini
+*.log
+
+.vscode/
+.idea/
+node_modules/
+dist/
+build/
+
+# Art workflow files - not needed by the published game
+asset-review/
+images/cosmetics-source/
+*_chromakey.png
+*_backup.png
